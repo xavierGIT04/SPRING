@@ -1,6 +1,5 @@
 package com.ipnet.rentalapi.auth.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.ipnet.rentalapi.auth.ProfilEnum;
 import com.ipnet.rentalapi.auth.RoleEnum;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -34,6 +34,7 @@ public class Utilisateur implements UserDetails{
 	private String codeProprietaire;
 	
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = true)
 	private ProfilEnum profil;
 	
 	@Enumerated(EnumType.STRING)
@@ -48,10 +49,18 @@ public class Utilisateur implements UserDetails{
 	public @Nullable String getPassword() {
 		return codeProprietaire;
 	}
+	
+	public void setPassword(String code) {
+		this.codeProprietaire = code;
+	}
 
 	@Override
 	public String getUsername() {
 		return telephone;
+	}
+	
+	public void setUsername(String telephone) {
+		this.telephone = telephone;
 	}
 
 	@Override
