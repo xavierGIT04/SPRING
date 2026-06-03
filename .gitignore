@@ -1,0 +1,56 @@
+# ==========================================
+# Les fichiers spécifiques à STS / Eclipse
+# ==========================================
+.metadata/
+.recommenders/
+RemoteSystemsTempFiles/
+*.tmp
+*.bak
+*.swp
+*~
+.hotspot_compiler
+
+# Fichiers de configuration Eclipse par projet (optionnel mais recommandé pour un multi-projet)
+# Supprimez les lignes suivantes si vous voulez partager la configuration Eclipse avec votre équipe
+**/.classpath
+**/.project
+**/.settings/
+**/bin/
+**/.factorypath
+
+# ==========================================
+# Outils de Build (Maven et Gradle)
+# ==========================================
+# Maven
+**/target/
+**/pom.xml.tag
+**/pom.xml.releaseBackup
+**/pom.xml.next
+**/pom.xml.releaseBackup
+**/release.properties
+**/dependency-reduced-pom.xml
+**/buildNumber.properties
+**/.mvn/timing.properties
+# Éviter de push l'extension mvn en local si configurée
+**/.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+**/.gradle/
+**/build/
+**/!gradle-wrapper.jar
+
+# ==========================================
+# Fichiers Log et Système
+# ==========================================
+**/logs/
+**/*.log
+**/.DS_Store
+**/Thumbs.db
+
+# ==========================================
+# Environnement et Sécurité
+# ==========================================
+**/.env
+**/.env.local
+**/application-local.properties
+**/application-local.yml

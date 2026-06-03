@@ -1,0 +1,111 @@
+package com.ipnet.rentalapi.auth.model;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+
+import org.jspecify.annotations.Nullable;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import com.ipnet.rentalapi.auth.ProfilEnum;
+import com.ipnet.rentalapi.auth.RoleEnum;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity
+public class Utilisateur implements UserDetails{
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	private UUID uuid = UUID.randomUUID();
+	
+	private String nomComplet;
+	
+	private String telephone;
+	private String codeProprietaire;
+	
+	@Enumerated(EnumType.STRING)
+	private ProfilEnum profil;
+	
+	@Enumerated(EnumType.STRING)
+	private RoleEnum role;
+	
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {		
+		return List.of(new SimpleGrantedAuthority("ROLE_"+role.name()));
+	}
+
+	@Override
+	public @Nullable String getPassword() {
+		return codeProprietaire;
+	}
+
+	@Override
+	public String getUsername() {
+		return telephone;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {return true;}
+	
+	@Override
+	public boolean isAccountNonLocked() {return true;}
+	
+	@Override
+	public boolean isCredentialsNonExpired() {return true;}
+	
+	@Override
+	public boolean isEnabled() {return true;}
+	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
+	}
+
+	public String getNomComplet() {
+		return nomComplet;
+	}
+
+	public void setNomComplet(String nomComplet) {
+		this.nomComplet = nomComplet;
+	}
+
+	public ProfilEnum getProfil() {
+		return profil;
+	}
+
+	public void setProfil(ProfilEnum profil) {
+		this.profil = profil;
+	}
+
+	public RoleEnum getRole() {
+		return role;
+	}
+
+	public void setRole(RoleEnum role) {
+		this.role = role;
+	}
+	
+	
+
+}
