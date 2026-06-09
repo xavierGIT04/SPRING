@@ -22,7 +22,7 @@ public class BaseEntity {
 	@LastModifiedDate
 	private LocalDateTime updateDate;
 	
-	@CreatedBy
+	@CreatedBy()
 	@Column(updatable = false, nullable = true)
 	private Utilisateur createBy;
 	

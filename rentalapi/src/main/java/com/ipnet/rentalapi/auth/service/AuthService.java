@@ -1,5 +1,7 @@
 package com.ipnet.rentalapi.auth.service;
 
+import java.util.List;
+import java.util.UUID;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,14 +53,15 @@ public class AuthService {
     				token,
     				utilisateur.getNomComplet(),
     				utilisateur.getRole(),
-    				utilisateur.getProfil()
+    				utilisateur.getProfil(),
+    				utilisateur.getUsername()
     		   );
     }
     
     public AuthResponse register(UtilisateurRequest user) {
     	Utilisateur newUser = new Utilisateur();
     	newUser.setNomComplet(user.getNom());
-    	newUser.setPassword(passwordEncoder.encode(user.getCodeProprietaire()));
+    	newUser.setPassword(passwordEncoder.encode(user.getCode()));
     	newUser.setUsername(user.getTelephone());
     	newUser.setProfil(user.getProfil());
     	newUser.setRole(user.getRole());
@@ -71,9 +74,43 @@ public class AuthService {
     			token, 
     			userdb.getNomComplet(), 
     			userdb.getRole(), 
-    			userdb.getProfil()
+    			userdb.getProfil(),
+    			userdb.getUsername()
     			);
     	return response;
     	
     }
+    
+    public AuthResponse  updateInfo(Utilisateur user, String nom, String tel) {
+    	user.setNomComplet(nom);
+    	user.setUsername(tel);
+    	utilisateurRepository.save(user);
+    	String token = jwtService.generateToken(user);
+    	
+    	return new AuthResponse(
+    			user.getUuid(), 
+    			token, 
+    			user.getNomComplet(), 
+    			user.getRole(), 
+    			user.getProfil(), 
+    			user.getUsername()
+    			);
+    	
+    }
+    
+    public String updateCode(UUID uuid, String code) throws Exception {
+    	Utilisateur user = utilisateurRepository.findByUuid(uuid).orElseThrow(()-> new Exception("Utilisateur introuvale"));
+    	code = passwordEncoder.encode(code);
+    	user.setPassword(code);
+    	utilisateurRepository.save(user);
+    	return "Code réinitialisé avec succès";
+    }
+
+    public List<Utilisateur> allUsers(){
+    	return utilisateurRepository.findAll();
+    }
+	
+    
+   
+    
 }

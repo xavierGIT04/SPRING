@@ -11,15 +11,17 @@ public class AuthResponse {
 	 private RoleEnum role;
 	 private String nomComplet;
 	 private ProfilEnum profil;
+	 private String telephone;
 	 
 	 
-	 public AuthResponse(UUID uuid, String token, String nomComplet, RoleEnum role, ProfilEnum profil) {
+	 public AuthResponse(UUID uuid, String token, String nomComplet, RoleEnum role, ProfilEnum profil, String telephone) {
 		super();
 		this.uuid = uuid;
 		this.token = token;
 		this.nomComplet = nomComplet;
 		this.profil = profil;
 		this.role = role;
+		this.telephone = telephone;
 		
 		
 	}
@@ -52,6 +54,12 @@ public class AuthResponse {
 	 }
 	 public void setProfil(ProfilEnum profil) {
 		 this.profil = profil;
+	 }
+	 public String getTelephone() {
+		 return telephone;
+	 }
+	 public void setTelephone(String telephone) {
+		 this.telephone = telephone;
 	 }
 	 
 	 

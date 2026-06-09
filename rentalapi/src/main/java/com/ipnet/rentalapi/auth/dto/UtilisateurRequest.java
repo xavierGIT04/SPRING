@@ -6,7 +6,7 @@ import com.ipnet.rentalapi.auth.RoleEnum;
 public class UtilisateurRequest {
 
 	private String telephone;
-	private String codeProprietaire;
+	private String code;
 	private ProfilEnum profil;
 	private RoleEnum role;
 	private String nom;
@@ -17,11 +17,11 @@ public class UtilisateurRequest {
 	public void setTelephone(String telephone) {
 		this.telephone = telephone;
 	}
-	public String getCodeProprietaire() {
-		return codeProprietaire;
+	public String getCode() {
+		return code;
 	}
-	public void setCodeProprietaire(String codeProprietaire) {
-		this.codeProprietaire = codeProprietaire;
+	public void setCode(String code) {
+		this.code = code;
 	}
 	public ProfilEnum getProfil() {
 		return profil;

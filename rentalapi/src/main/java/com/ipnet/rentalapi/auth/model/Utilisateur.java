@@ -1,5 +1,6 @@
 package com.ipnet.rentalapi.auth.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -9,9 +10,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.ipnet.rentalapi.Glogement.models.Bien;
 import com.ipnet.rentalapi.auth.ProfilEnum;
 import com.ipnet.rentalapi.auth.RoleEnum;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,6 +22,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Utilisateur implements UserDetails{
@@ -39,6 +43,9 @@ public class Utilisateur implements UserDetails{
 	
 	@Enumerated(EnumType.STRING)
 	private RoleEnum role;
+	
+	@OneToMany(mappedBy = "proprietaire", cascade = CascadeType.ALL)
+	private List<Bien> biens = new ArrayList<Bien>();
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {		
@@ -113,6 +120,14 @@ public class Utilisateur implements UserDetails{
 
 	public void setRole(RoleEnum role) {
 		this.role = role;
+	}
+
+	public List<Bien> getBiens() {
+		return biens;
+	}
+
+	public void setBiens(List<Bien> biens) {
+		this.biens = biens;
 	}
 	
 	
