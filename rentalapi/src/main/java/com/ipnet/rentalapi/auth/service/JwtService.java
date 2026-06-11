@@ -23,7 +23,10 @@ public class JwtService {
 	private String secretKey;
 	
 	@Value("${application.security.jwt.expiration}")
-	private long jwtExpiration;
+	private long jwtExpiration; // 15 minutes en ms
+	
+	 @Value("${application.security.jwt.refresh-expiration}")
+	 private long refreshExpiration; // 7 jours en ms
 
 	
 	public String extractUsername(String token) {
@@ -31,16 +34,20 @@ public class JwtService {
 	}
 	
 	public String generateToken(UserDetails userDetails) {
-		return generateToken(new HashMap<>(), userDetails);
+		return generateToken(new HashMap<>(), userDetails, jwtExpiration);
+	}
+	
+	public String generateRefreshToken(UserDetails userDetails) {
+	    return generateToken(new HashMap<>(), userDetails, refreshExpiration);
 	}
 	
 	//methodes utilitaires
-	public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+	public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
 		return Jwts.builder()
 				.claims(extraClaims)
 				.subject(userDetails.getUsername())
 				.issuedAt(new Date(System.currentTimeMillis()))
-				.expiration(new Date(System.currentTimeMillis()+jwtExpiration))
+				.expiration(new Date(System.currentTimeMillis()+expiration))
 				.signWith(getSignInKey())
 				.compact();
 	}

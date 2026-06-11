@@ -1,7 +1,7 @@
 package com.ipnet.rentalapi.auth.service;
 
 import java.util.List;
-import java.util.UUID;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.ipnet.rentalapi.auth.dto.AuthRequest;
 import com.ipnet.rentalapi.auth.dto.AuthResponse;
 import com.ipnet.rentalapi.auth.dto.UtilisateurRequest;
+import com.ipnet.rentalapi.auth.dto.UtilisateurResponse;
 import com.ipnet.rentalapi.auth.model.Utilisateur;
 import com.ipnet.rentalapi.auth.repository.UtilisateurRepository;
 
@@ -23,7 +24,7 @@ public class AuthService {
     private final UtilisateurRepository utilisateurRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService ;
-
+   
     
     
     public AuthService(AuthenticationManager authenticationManager, UtilisateurRepository utilisateurRepository,
@@ -47,6 +48,7 @@ public class AuthService {
     	
     	 // 3. Générer le token JWT
     	String token = jwtService.generateToken(utilisateur);
+    	String refreshToken = jwtService.generateRefreshToken(utilisateur);
     	
     	return new AuthResponse(
     				utilisateur.getUuid(),
@@ -54,7 +56,8 @@ public class AuthService {
     				utilisateur.getNomComplet(),
     				utilisateur.getRole(),
     				utilisateur.getProfil(),
-    				utilisateur.getUsername()
+    				utilisateur.getUsername(),
+    				refreshToken	
     		   );
     }
     
@@ -69,37 +72,40 @@ public class AuthService {
     	Utilisateur userdb = utilisateurRepository.save(newUser);
     	
     	String token = jwtService.generateToken(userdb);
+    	String refreshToken = jwtService.generateRefreshToken(userdb);
     	AuthResponse response = new AuthResponse(
     			userdb.getUuid(), 
     			token, 
     			userdb.getNomComplet(), 
     			userdb.getRole(), 
     			userdb.getProfil(),
-    			userdb.getUsername()
+    			userdb.getUsername(),
+    			refreshToken
     			);
     	return response;
     	
     }
     
     public AuthResponse  updateInfo(Utilisateur user, String nom, String tel) {
+    	
     	user.setNomComplet(nom);
     	user.setUsername(tel);
     	utilisateurRepository.save(user);
     	String token = jwtService.generateToken(user);
-    	
+    	String refreshToken = jwtService.generateRefreshToken(user);
     	return new AuthResponse(
     			user.getUuid(), 
     			token, 
     			user.getNomComplet(), 
     			user.getRole(), 
     			user.getProfil(), 
-    			user.getUsername()
+    			user.getUsername(),
+    			refreshToken
     			);
     	
     }
     
-    public String updateCode(UUID uuid, String code) throws Exception {
-    	Utilisateur user = utilisateurRepository.findByUuid(uuid).orElseThrow(()-> new Exception("Utilisateur introuvale"));
+    public String updateCode(Utilisateur user, String code) throws Exception {
     	code = passwordEncoder.encode(code);
     	user.setPassword(code);
     	utilisateurRepository.save(user);
@@ -108,6 +114,10 @@ public class AuthService {
 
     public List<Utilisateur> allUsers(){
     	return utilisateurRepository.findAll();
+    }
+    
+    public UtilisateurResponse getInofs(Utilisateur user) {
+    	return new UtilisateurResponse(user.getUsername(), user.getProfil(), user.getRole(), user.getNomComplet());
     }
 	
     

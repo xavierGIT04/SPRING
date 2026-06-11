@@ -13,6 +13,12 @@ public class AuthUtils {
 		Authentication authentication = SecurityContextHolder
 				.getContext()
 				.getAuthentication();
+		
+		if (authentication == null || !authentication.isAuthenticated() 
+		            || "anonymousUser".equals(authentication.getPrincipal())) {
+		      throw new SecurityException("Utilisateur non connecté");
+		 }
+		 
 		return (Utilisateur) authentication.getPrincipal();
 	}
 	

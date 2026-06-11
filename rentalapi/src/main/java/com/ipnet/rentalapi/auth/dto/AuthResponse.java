@@ -12,9 +12,12 @@ public class AuthResponse {
 	 private String nomComplet;
 	 private ProfilEnum profil;
 	 private String telephone;
+	 private String refreshToken;   // Token à longue durée
+	 private String tokenType = "Bearer";
 	 
 	 
-	 public AuthResponse(UUID uuid, String token, String nomComplet, RoleEnum role, ProfilEnum profil, String telephone) {
+	 public AuthResponse(UUID uuid, String token, String nomComplet, RoleEnum role, ProfilEnum profil, String telephone, 
+			 String reToken) {
 		super();
 		this.uuid = uuid;
 		this.token = token;
@@ -22,6 +25,7 @@ public class AuthResponse {
 		this.profil = profil;
 		this.role = role;
 		this.telephone = telephone;
+		this.refreshToken = reToken;
 		
 		
 	}
@@ -60,6 +64,18 @@ public class AuthResponse {
 	 }
 	 public void setTelephone(String telephone) {
 		 this.telephone = telephone;
+	 }
+	 public String getRefreshToken() {
+		 return refreshToken;
+	 }
+	 public void setRefreshToken(String refreshToken) {
+		 this.refreshToken = refreshToken;
+	 }
+	 public String getTokenType() {
+		 return tokenType;
+	 }
+	 public void setTokenType(String tokenType) {
+		 this.tokenType = tokenType;
 	 }
 	 
 	 
