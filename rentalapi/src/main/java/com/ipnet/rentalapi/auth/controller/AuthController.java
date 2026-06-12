@@ -1,5 +1,6 @@
 package com.ipnet.rentalapi.auth.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,26 +59,24 @@ public class AuthController {
     
     @PutMapping("update_info")
     @PreAuthorize("hasRole('LOCATAIRE') or hasRole('PROPRIETAIRE')")
-    public ResponseEntity<AuthResponse> updateInfos(
-    		@RequestParam String nom, 
-    		@RequestParam String tel
-    		){
+    public ResponseEntity<UtilisateurResponse> updateInfos(@RequestBody HashMap<String, String> infos){
     	Utilisateur user = authUtils.getUtilisateurConnecte();
-    	return ResponseEntity.ok(authService.updateInfo(user, nom, tel));
+    	return ResponseEntity.ok(authService.updateInfo(user, infos));
     }
     
     @GetMapping("me")
     @PreAuthorize("hasRole('LOCATAIRE') or hasRole('PROPRIETAIRE')")
     public ResponseEntity<UtilisateurResponse> getMe(){
     	Utilisateur user = authUtils.getUtilisateurConnecte();
-    	return ResponseEntity.ok(authService.getInofs(user));
+    	return ResponseEntity.ok(authService.getInfos(user));
+    	
     }
     
-    @PutMapping("update_code")
-    @PreAuthorize("hasRole('PROPRIETAIRE')")
-    public ResponseEntity<String> updateCode(@RequestParam String code) throws Exception{
+    @PutMapping("update_avatar")
+    @PreAuthorize("hasRole('LOCATAIRE') or hasRole('PROPRIETAIRE')")
+    public ResponseEntity<UtilisateurResponse> updateAvatar(@RequestBody String url){
     	Utilisateur user = authUtils.getUtilisateurConnecte();
-    	return ResponseEntity.ok(authService.updateCode(user, code));
+    	return ResponseEntity.ok(authService.updateAvatar(user, url));
     }
     
     @GetMapping("users")

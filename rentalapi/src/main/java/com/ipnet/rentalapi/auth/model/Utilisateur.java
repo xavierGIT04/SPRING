@@ -44,6 +44,8 @@ public class Utilisateur implements UserDetails{
 	@Enumerated(EnumType.STRING)
 	private RoleEnum role;
 	
+	private String avatar;
+	
 	@OneToMany(mappedBy = "proprietaire", cascade = CascadeType.ALL)
 	private List<Bien> biens = new ArrayList<Bien>();
 	
@@ -128,6 +130,14 @@ public class Utilisateur implements UserDetails{
 
 	public void setBiens(List<Bien> biens) {
 		this.biens = biens;
+	}
+
+	public String getAvatar() {
+		return avatar;
+	}
+
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
 	}
 	
 	

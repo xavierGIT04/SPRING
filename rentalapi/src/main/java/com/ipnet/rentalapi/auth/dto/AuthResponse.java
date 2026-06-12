@@ -9,7 +9,7 @@ public class AuthResponse {
 	 private UUID uuid;
 	 private String token;
 	 private RoleEnum role;
-	 private String nomComplet;
+	 private String nom;
 	 private ProfilEnum profil;
 	 private String telephone;
 	 private String refreshToken;   // Token à longue durée
@@ -21,7 +21,7 @@ public class AuthResponse {
 		super();
 		this.uuid = uuid;
 		this.token = token;
-		this.nomComplet = nomComplet;
+		this.nom = nomComplet;
 		this.profil = profil;
 		this.role = role;
 		this.telephone = telephone;
@@ -41,11 +41,11 @@ public class AuthResponse {
 	 public void setRole(RoleEnum role) {
 		 this.role = role;
 	 }
-	 public String getNomComplet() {
-		 return nomComplet;
+	 public String getNom() {
+		 return nom;
 	 }
-	 public void setNomComplet(String nomComplet) {
-		 this.nomComplet = nomComplet;
+	 public void setNom(String nomComplet) {
+		 this.nom = nomComplet;
 	 }
 	 public UUID getUuid() {
 		 return uuid;

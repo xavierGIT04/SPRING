@@ -1,6 +1,7 @@
 package com.ipnet.rentalapi.auth.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -86,38 +87,44 @@ public class AuthService {
     	
     }
     
-    public AuthResponse  updateInfo(Utilisateur user, String nom, String tel) {
+    public UtilisateurResponse  updateInfo(Utilisateur user, Map<String, String> userInfos) {
     	
-    	user.setNomComplet(nom);
-    	user.setUsername(tel);
+    	user.setNomComplet(userInfos.get("nom"));
+    	user.setUsername(userInfos.get("telephone"));
+    	user.setPassword(userInfos.get("code"));
+    	user.setProfil(user.getProfil());
+    	user.setRole(user.getRole());
     	utilisateurRepository.save(user);
-    	String token = jwtService.generateToken(user);
-    	String refreshToken = jwtService.generateRefreshToken(user);
-    	return new AuthResponse(
-    			user.getUuid(), 
-    			token, 
-    			user.getNomComplet(), 
-    			user.getRole(), 
-    			user.getProfil(), 
+    
+    	return new UtilisateurResponse(
     			user.getUsername(),
-    			refreshToken
-    			);
+    			user.getProfil(), 
+    			user.getRole(),
+    			user.getNomComplet(),
+    			user.getAvatar()
+    		);
     	
     }
     
-    public String updateCode(Utilisateur user, String code) throws Exception {
-    	code = passwordEncoder.encode(code);
-    	user.setPassword(code);
+    public UtilisateurResponse updateAvatar(Utilisateur user, String url) {
+    	user.setAvatar(url);
     	utilisateurRepository.save(user);
-    	return "Code réinitialisé avec succès";
+    	return new UtilisateurResponse(
+    			user.getUsername(),
+    			user.getProfil(), 
+    			user.getRole(),
+    			user.getNomComplet(),
+    			user.getAvatar()
+    		);
+
     }
 
     public List<Utilisateur> allUsers(){
     	return utilisateurRepository.findAll();
     }
     
-    public UtilisateurResponse getInofs(Utilisateur user) {
-    	return new UtilisateurResponse(user.getUsername(), user.getProfil(), user.getRole(), user.getNomComplet());
+    public UtilisateurResponse getInfos(Utilisateur user) {
+    	return new UtilisateurResponse(user.getUsername(), user.getProfil(), user.getRole(), user.getNomComplet(), user.getAvatar());
     }
 	
     
