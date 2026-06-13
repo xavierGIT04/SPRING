@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,26 +31,33 @@ public class AirbnController {
 	private BienAirbnService bienAirbnService;
 	
 
-	@PostMapping("add_airbn/")
+	@PostMapping("add_airbn")
 	public ResponseEntity<AirbnResponse> create(@RequestBody AirbnRequest request) {
 		return ResponseEntity.ok(bienAirbnService.create(request));
 	}
 	
 	
-	@GetMapping("all_airbns/")
+	@GetMapping("all_airbns")
 	public ResponseEntity<ArrayList<AirbnResponse>> allAirbn(){
 		return ResponseEntity.ok(bienAirbnService.allBien());
 	}
 	
-	@GetMapping("one_airbn/")
+	@GetMapping("one_airbn")
 	public ResponseEntity<AirbnResponse> getOneAirbn(@RequestParam UUID id){
 		return ResponseEntity.ok(bienAirbnService.getOneAirbn(id));
 	}
 	
-	@PatchMapping("/changer_statut")
+	@PatchMapping("changer_statut")
 	public ResponseEntity<AirbnResponse> change(UUID id, @RequestParam StatutUnite statut) {
 		return ResponseEntity.ok(bienAirbnService.changerStatut(id, statut));
 	}
+	
+	@PutMapping("update")
+	public ResponseEntity<AirbnResponse> update(UUID id,@RequestBody AirbnRequest request) {
+		return ResponseEntity.ok(bienAirbnService.update_infos(id, request));
+	}
+	
+	
 	
 	
 	

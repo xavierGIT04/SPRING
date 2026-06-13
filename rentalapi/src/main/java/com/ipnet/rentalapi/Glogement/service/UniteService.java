@@ -51,7 +51,20 @@ public class UniteService{
 		Unite unite = uniteRepository.findByUuid(id).orElseThrow(()-> new RuntimeException("Unité introuvable"));
 		return mappers.toResponse(unite);
 	}
-
+	
+	public UniteResponse update(UUID id, UniteRequest request) throws Exception {
+		Unite unite = uniteRepository.findByUuid(id).orElseThrow(()-> new RuntimeException("Unité introuvable"));
+		unite.setBien(bienRepository.findByUuid(request.getBien_id()).orElseThrow(() -> new RuntimeException("Bien introuvable")));
+		unite.setCode_unite(request.getCode_unite());
+		unite.setDescription(request.getDescription());
+		unite.setPrix_nuite(request.getPrix_nuite());
+		unite.setLoyer_reference(request.getLoyer_reference());
+		unite.setStatut(request.getStatut());
+		unite.setType(request.getType());
+		return mappers.toResponse(unite);
+	}
+	
+	
 	
 	public UniteResponse changeStatut(UUID id, StatutUnite statut) {
 		Unite unite = null;

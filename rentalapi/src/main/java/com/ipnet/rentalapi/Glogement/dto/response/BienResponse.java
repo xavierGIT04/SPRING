@@ -15,8 +15,8 @@ public class BienResponse {
 	
 	
 
-	public BienResponse(UUID uuid, String libelle, BienEnum type, String ville,
-			String quartier, String name) {
+	public BienResponse(UUID uuid, String libelle, BienEnum type, String quartier,
+			String ville, String name) {
 		super();
 		this.uuid = uuid;
 		this.libelle = libelle;

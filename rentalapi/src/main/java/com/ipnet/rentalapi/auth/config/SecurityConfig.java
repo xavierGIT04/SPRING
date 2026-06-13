@@ -83,7 +83,7 @@ public class SecurityConfig {
         
         // ATTENTION : Ne pas utiliser "*" avec allowCredentials(true)
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200")); 
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH" ,"DELETE", "OPTIONS"));
         
         // Autoriser expressément les en-têtes dont Angular a besoin
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));

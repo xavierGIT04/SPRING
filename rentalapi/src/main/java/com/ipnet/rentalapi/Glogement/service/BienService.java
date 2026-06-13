@@ -57,6 +57,16 @@ public class BienService{
 		return response;
 	}
 	
+	public BienResponse update(UUID id, BienRequest request) throws Exception {
+		Bien bien = bienRepository.findByUuid(id).orElseThrow(() -> new RuntimeException("Bien introuvable"));
+		bien.setLibelle(request.getLibelle());
+		bien.setQuartier(request.getQuartier());
+		bien.setVille(request.getVille());
+		bien.setType(request.getType());
+		bien.setProprietaire(authUtils.getUtilisateurConnecte());
+		return mappers.toResponse(bien);
+	}
+	
 	public ArrayList<UniteResponse> getAllUniteByBien(UUID id)  {
 		Bien bien;
 		ArrayList<UniteResponse> response = new ArrayList<UniteResponse>();

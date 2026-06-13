@@ -10,6 +10,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.ipnet.rentalapi.Gbails.models.ContratBail;
+import com.ipnet.rentalapi.Gbails.models.Notification;
 import com.ipnet.rentalapi.Glogement.models.Bien;
 import com.ipnet.rentalapi.auth.ProfilEnum;
 import com.ipnet.rentalapi.auth.RoleEnum;
@@ -48,6 +50,12 @@ public class Utilisateur implements UserDetails{
 	
 	@OneToMany(mappedBy = "proprietaire", cascade = CascadeType.ALL)
 	private List<Bien> biens = new ArrayList<Bien>();
+	
+	@OneToMany(mappedBy = "locataire", cascade = CascadeType.ALL)
+	private List<ContratBail> bails = new ArrayList<ContratBail>();
+	
+	@OneToMany(mappedBy = "locataire", cascade = CascadeType.ALL)
+	private List<Notification> notifications = new ArrayList<Notification>();
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {		
@@ -138,6 +146,22 @@ public class Utilisateur implements UserDetails{
 
 	public void setAvatar(String avatar) {
 		this.avatar = avatar;
+	}
+
+	public List<ContratBail> getBails() {
+		return bails;
+	}
+
+	public void setBails(List<ContratBail> bails) {
+		this.bails = bails;
+	}
+
+	public List<Notification> getNotifications() {
+		return notifications;
+	}
+
+	public void setNotifications(List<Notification> notifications) {
+		this.notifications = notifications;
 	}
 	
 	
