@@ -2,12 +2,15 @@ package com.ipnet.rentalapi.Gbails.dto.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
+
+import com.ipnet.rentalapi.Gbails.Enums.StatutEcheance;
 
 public record EcheanceResponse(
-	    String uuid,
+		UUID uuid,
 	    LocalDate dateEcheance,
 	    BigDecimal montantDu,
 	    BigDecimal montantRestant,
-	    String statut,
+	    StatutEcheance statut,
 	    String codeUnite
 	) {}

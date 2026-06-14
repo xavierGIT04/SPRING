@@ -4,10 +4,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import com.ipnet.rentalapi.Gbails.Enums.StatutEcheance;
+
 public record EcheanceRequest(
 		UUID contrat_id,
 		LocalDate dateEcheance,
 	    BigDecimal montantDu,
 	    BigDecimal montantRestant,
-	    String statut
+	    StatutEcheance statut
 		) {}

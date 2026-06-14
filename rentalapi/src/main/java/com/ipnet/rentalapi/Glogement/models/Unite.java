@@ -1,22 +1,28 @@
 package com.ipnet.rentalapi.Glogement.models;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.ipnet.rentalapi.Gbails.models.ContratBail;
 import com.ipnet.rentalapi.Glogement.Enums.StatutUnite;
 import com.ipnet.rentalapi.Glogement.Enums.TypeUnite;
 import com.ipnet.rentalapi.utils.BaseEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -42,6 +48,9 @@ public class Unite extends BaseEntity{
 	@ManyToOne
 	@JoinColumn(name = "bien_id", nullable = false)
 	private Bien bien;
+	
+	@OneToMany(mappedBy = "unite", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<ContratBail> contrats = new ArrayList<ContratBail>();
 	
 	public Long getId() {
 		return id;

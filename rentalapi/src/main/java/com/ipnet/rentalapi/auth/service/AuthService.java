@@ -70,6 +70,7 @@ public class AuthService {
     	newUser.setProfil(user.getProfil());
     	newUser.setRole(user.getRole());
     	
+    	
     	Utilisateur userdb = utilisateurRepository.save(newUser);
     	
     	String token = jwtService.generateToken(userdb);

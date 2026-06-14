@@ -21,9 +21,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 @Entity
@@ -47,6 +50,14 @@ public class Utilisateur implements UserDetails{
 	private RoleEnum role;
 	
 	private String avatar;
+	
+	@ManyToOne(fetch = FetchType.LAZY) 
+    @JoinColumn(name = "created_by_id")
+    private Utilisateur createdBy;
+
+    //permet d'avoir la liste des locataires directement depuis l'objet propriétaire
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    private List<Utilisateur> locatairesCrees = new ArrayList<Utilisateur>();
 	
 	@OneToMany(mappedBy = "proprietaire", cascade = CascadeType.ALL)
 	private List<Bien> biens = new ArrayList<Bien>();
@@ -162,6 +173,22 @@ public class Utilisateur implements UserDetails{
 
 	public void setNotifications(List<Notification> notifications) {
 		this.notifications = notifications;
+	}
+
+	public Utilisateur getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(Utilisateur createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public List<Utilisateur> getLocatairesCrees() {
+		return locatairesCrees;
+	}
+
+	public void setLocatairesCrees(List<Utilisateur> locatairesCrees) {
+		this.locatairesCrees = locatairesCrees;
 	}
 	
 	

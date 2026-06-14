@@ -2,7 +2,9 @@ package com.ipnet.rentalapi.Gbails.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.ipnet.rentalapi.Gbails.Enums.StatutEcheance;
 
@@ -16,7 +18,7 @@ public class Echeance {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String uuid;
+    private UUID uuid = UUID.randomUUID();
 
     @Column(name = "date_echeance", nullable = false)
     private LocalDate dateEcheance; // Date limite de paiement (ex: 05/06/2026)
@@ -37,7 +39,7 @@ public class Echeance {
     private ContratBail contratBail;
 
     @OneToMany(mappedBy = "echeance", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Paiement> paiements;
+    private List<Paiement> paiements = new ArrayList<Paiement>();
 
 	public Long getId() {
 		return id;
@@ -47,11 +49,11 @@ public class Echeance {
 		this.id = id;
 	}
 
-	public String getUuid() {
+	public UUID getUuid() {
 		return uuid;
 	}
 
-	public void setUuid(String uuid) {
+	public void setUuid(UUID uuid) {
 		this.uuid = uuid;
 	}
 

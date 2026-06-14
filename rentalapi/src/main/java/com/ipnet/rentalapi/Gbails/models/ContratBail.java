@@ -2,7 +2,10 @@ package com.ipnet.rentalapi.Gbails.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -23,15 +26,15 @@ public class ContratBail {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String uuid;
+    private UUID uuid = UUID.randomUUID();
 
     @Column(name = "date_debut", nullable = false)
     private LocalDate dateDebut;
 
-    @Column(name = "date_sortie")
+    @Column(name = "date_sortie", nullable = true)
     private LocalDate dateSortie; // Optionnel (pour les baux à durée déterminée)
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer duree; // En mois (0 si durée indéterminée)
 
     @Column(nullable = false, precision = 10, scale = 2)
@@ -47,7 +50,7 @@ public class ContratBail {
     @Column(columnDefinition = "TEXT")
     private String conditions; 
     
-    @Column(name = "contrat_url")
+    @Column(name = "contrat_url", nullable = true)
     private String contratUrl; 
 
     // RELATIONS
@@ -60,7 +63,7 @@ public class ContratBail {
     private Unite unite; 
 
     @OneToMany(mappedBy = "contratBail", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Echeance> echeances;
+    private List<Echeance> echeances = new ArrayList<Echeance>();
     
     
     
@@ -77,11 +80,11 @@ public class ContratBail {
 		this.id = id;
 	}
 
-	public String getUuid() {
+	public UUID getUuid() {
 		return uuid;
 	}
 
-	public void setUuid(String uuid) {
+	public void setUuid(UUID uuid) {
 		this.uuid = uuid;
 	}
 

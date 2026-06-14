@@ -2,16 +2,23 @@ package com.ipnet.rentalapi.Gbails.dto.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
+
+import com.ipnet.rentalapi.Gbails.Enums.BailEnum;
+import com.ipnet.rentalapi.Glogement.Enums.TypeUnite;
 
 public  record BailResponse(
-	    String uuid,
+		UUID uuid,
 	    String locataireNom,
 	    String locataireTelephone,
 	    String codeUnite,
-	    String typeUnite,
+	    TypeUnite typeUnite,
 	    LocalDate dateDebut,
 	    LocalDate dateSortie,
 	    BigDecimal loyer,
-	    String statut,
-	    Integer jourEcheance
+	    BailEnum statut,
+	    Integer jourEcheance,
+	    Integer duree,
+	    String condition
+	   
 	) {}

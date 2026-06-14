@@ -2,6 +2,7 @@ package com.ipnet.rentalapi.Gbails.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.ipnet.rentalapi.Gbails.Enums.ModePaiement;
 
@@ -17,7 +18,7 @@ public class Paiement {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String uuid;
+    private UUID uuid = UUID.randomUUID();
 
     @Column(name = "date_paiement", nullable = false)
     private LocalDateTime datePaiement; // Date et heure de l'encaissement
@@ -48,11 +49,11 @@ public class Paiement {
 		this.id = id;
 	}
 
-	public String getUuid() {
+	public UUID getUuid() {
 		return uuid;
 	}
 
-	public void setUuid(String uuid) {
+	public void setUuid(UUID uuid) {
 		this.uuid = uuid;
 	}
 

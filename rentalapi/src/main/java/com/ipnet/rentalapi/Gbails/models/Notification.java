@@ -2,6 +2,7 @@ package com.ipnet.rentalapi.Gbails.models;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.ipnet.rentalapi.Gbails.Enums.TypeNotification;
 import com.ipnet.rentalapi.auth.model.Utilisateur;
@@ -15,7 +16,7 @@ public class Notification {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String uuid;
+    private UUID uuid = UUID.randomUUID();
 
     @Column(nullable = false)
     private String titre;
@@ -46,11 +47,11 @@ public class Notification {
 		this.id = id;
 	}
 
-	public String getUuid() {
+	public UUID getUuid() {
 		return uuid;
 	}
 
-	public void setUuid(String uuid) {
+	public void setUuid(UUID uuid) {
 		this.uuid = uuid;
 	}
 
