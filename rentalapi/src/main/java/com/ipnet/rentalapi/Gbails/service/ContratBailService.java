@@ -75,7 +75,8 @@ public class ContratBailService {
                 ""
         );
     }
- 
+    
+   
     /**
      * Crée un contrat de bail et envoie immédiatement une notification
      * de bienvenue au locataire.

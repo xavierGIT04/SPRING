@@ -8,7 +8,10 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -18,6 +21,7 @@ import com.ipnet.rentalapi.Gbails.Enums.ModePaiement;
 import com.ipnet.rentalapi.Gbails.Enums.TypeNotification;
 import com.ipnet.rentalapi.Gbails.dto.request.NotificationRequest;
 import com.ipnet.rentalapi.Gbails.dto.request.PaiementRequest;
+import com.ipnet.rentalapi.Gbails.dto.response.PaiementInitResult;
 import com.ipnet.rentalapi.Gbails.models.Echeance;
 import com.ipnet.rentalapi.Gbails.repository.EcheanceRepository;
 import com.ipnet.rentalapi.Gbails.repository.PaiementRepository;
@@ -87,7 +91,7 @@ public class FedaPayService {
      * @param telephone    numéro Mobile Money du locataire (format: +22891000000)
      * @return URL de paiement FedaPay à ouvrir par le locataire
      */
-    public String initierPaiement(UUID echeanceUuid, String telephone) {
+    public PaiementInitResult  initierPaiement(UUID echeanceUuid, String telephone) {
         Echeance echeance = echeanceRepository.findByUuid(echeanceUuid)
                 .orElseThrow(() -> new RuntimeException("Échéance introuvable : " + echeanceUuid));
 
@@ -126,18 +130,28 @@ public class FedaPayService {
             JsonNode json = objectMapper.readTree(response.getBody());
 
             // FedaPay retourne l'ID de transaction et le token
-            String transactionId = json.path("v1").path("transaction").path("id").asText();
-            String token         = json.path("v1").path("transaction").path("token").asText();
+            JsonNode transaction = json.path("v1").path("transaction");
+            // Si la structure diffère selon votre version d'API, loguez json.toString()
+            // pour inspecter la réponse réelle et ajustez le path.
+            String transactionId = transaction.path("id").asText();
+            String token         = transaction.path("token").asText();
 
-            // Construire l'URL de paiement
-            String paymentUrl = getApiBase().replace("api.", "checkout.") +
-                                "/transactions/" + token + "/checkout";
+	         if (token.isBlank()) {
+	             log.error("[FEDAPAY] Token absent dans la réponse : {}", json.toString());
+	             throw new RuntimeException("FedaPay n'a pas retourné de token de transaction");
+	         }
+	            // Construire l'URL de paiement
+	            String checkoutBase = "sandbox".equalsIgnoreCase(mode)
+	                    ? "https://sandbox-checkout.fedapay.com"
+	                    : "https://checkout.fedapay.com";
+	            String paymentUrl = checkoutBase + "/v1/pay/" + token;
+	
+	            log.info("[FEDAPAY] Transaction créée — id={} echéance={} montant={} FCFA",
+	                    transactionId, echeanceUuid, montant);
+	            	
+	            return new PaiementInitResult(paymentUrl, montant);
 
-            log.info("[FEDAPAY] Transaction créée — id={} echéance={} montant={} FCFA",
-                    transactionId, echeanceUuid, montant);
-
-            return paymentUrl;
-
+	          
         } catch (Exception e) {
             log.error("[FEDAPAY] Erreur création transaction : {}", e.getMessage(), e);
             throw new RuntimeException("Erreur lors de l'initiation du paiement FedaPay : " + e.getMessage());
@@ -183,8 +197,8 @@ public class FedaPayService {
         String echeanceUuidStr = getEcheanceUuid(payload);
 
         // IDEMPOTENCE : si ce paiement existe déjà, on sort immédiatement
-        boolean dejaSolde = paiementRepository.findAll().stream()
-                .anyMatch(p -> reference.equals(p.getReferencePaiement()));
+        boolean dejaSolde = paiementRepository.findByReferencePaiement(reference).isPresent();
+
 
         if (dejaSolde) {
             log.info("[FEDAPAY WEBHOOK] Paiement {} déjà traité, skip (idempotence).", reference);

@@ -63,6 +63,7 @@ public class SecurityConfig {
                 // Auth endpoints publics
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers("/api/auth/register").permitAll()
+                .requestMatchers("/api/bail/webhook/**").permitAll()
                 // Tout le reste necessite un JWT
                 .anyRequest().authenticated()
             )

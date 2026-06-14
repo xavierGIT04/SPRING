@@ -10,24 +10,11 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import java.io.IOException;
 
-/**
- * Filtre Spring qui enveloppe la requête HTTP dans un ContentCachingRequestWrapper
- * pour permettre la lecture multiple du body.
- *
- * ⚠️ POURQUOI CE FILTRE EST INDISPENSABLE :
- * Spring lit le body de la requête UNE SEULE FOIS via un InputStream.
- * Quand on utilise @RequestBody dans le controller, Jackson consomme ce stream.
- * Si on essaie ensuite de lire le rawBody pour la vérification HMAC → stream vide → signature invalide.
- *
- * Ce filtre met en cache le body dès son arrivée, avant tout traitement.
- * On applique ce filtre UNIQUEMENT sur /api/bail/webhook/** pour ne pas impacter les autres routes.
- */
 @Component
 public class RawBodyCachingFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        // N'appliquer ce filtre qu'aux endpoints webhook
         return !request.getRequestURI().contains("/webhook/");
     }
 
@@ -38,11 +25,11 @@ public class RawBodyCachingFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // ContentCachingRequestWrapper permet de lire le body plusieurs fois
-        ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
+        ContentCachingRequestWrapper wrappedRequest =
+                new ContentCachingRequestWrapper(request, 1024 * 1024); // cache 1 MB max
 
-        // ⚠️ Il faut forcer la lecture du body ICI pour qu'il soit mis en cache
-        // avant que le controller ne le lise via @RequestBody
+        // Forcer la lecture du body pour le mettre en cache
+        // avant que @RequestBody ne consomme le stream
         wrappedRequest.getInputStream().readAllBytes();
 
         filterChain.doFilter(wrappedRequest, response);

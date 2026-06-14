@@ -11,4 +11,6 @@ import com.ipnet.rentalapi.Gbails.models.Paiement;
 public interface PaiementRepository extends JpaRepository<Paiement, Long> {
     Optional<Paiement> findByUuid(UUID uuid);
     List<Paiement> findByEcheanceUuid(UUID echeanceUuid);
+    Optional<Paiement> findByReferencePaiement(String referencePaiement);
+
 }
