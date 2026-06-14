@@ -1,14 +1,12 @@
 package com.ipnet.rentalapi.Gbails.dto.request;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import com.ipnet.rentalapi.Gbails.Enums.TypeNotification;
+import com.ipnet.rentalapi.auth.model.Utilisateur;
 
 public record NotificationRequest(
-		UUID destinataire_id,
+		Utilisateur destinataire,
 		String titre,
 	    String message,
-	    LocalDateTime dateEnvoi,
-	    String typeNotification,
-	    boolean estLu
+	    TypeNotification typeNotification
 		
 		) {}
