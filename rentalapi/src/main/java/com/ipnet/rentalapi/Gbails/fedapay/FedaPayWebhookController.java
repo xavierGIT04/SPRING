@@ -36,16 +36,15 @@ public class FedaPayWebhookController {
 
     private final FedaPaySignatureVerifier signatureVerifier;
     private final FedaPayService fedaPayService;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public FedaPayWebhookController(
             FedaPaySignatureVerifier signatureVerifier,
-            FedaPayService fedaPayService,
-            ObjectMapper objectMapper
+            FedaPayService fedaPayService
+           
     ) {
         this.signatureVerifier = signatureVerifier;
         this.fedaPayService = fedaPayService;
-        this.objectMapper = objectMapper;
     }
 
     /**

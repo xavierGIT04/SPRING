@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ipnet.rentalapi.Gbails.dto.request.BailRequest;
+import com.ipnet.rentalapi.Gbails.dto.request.EcheanceRequest;
 import com.ipnet.rentalapi.Gbails.dto.request.InitPaiementMobileRequest;
 import com.ipnet.rentalapi.Gbails.dto.request.PaiementRequest;
 import com.ipnet.rentalapi.Gbails.dto.response.BailResponse;
@@ -28,6 +29,7 @@ import com.ipnet.rentalapi.Gbails.service.ContratBailService;
 import com.ipnet.rentalapi.Gbails.service.EcheanceService;
 import com.ipnet.rentalapi.Gbails.service.NotificationService;
 import com.ipnet.rentalapi.Gbails.service.PaiementService;
+import com.ipnet.rentalapi.Glogement.dto.response.UniteResponse;
 import com.ipnet.rentalapi.auth.dto.UtilisateurRequest;
 import com.ipnet.rentalapi.auth.dto.UtilisateurResponse;
 import com.ipnet.rentalapi.auth.model.Utilisateur;
@@ -85,10 +87,18 @@ public class ContratBailController {
     	                u.getProfil(),
     	                u.getRole(),
     	                u.getNomComplet(), 
-    	                u.getAvatar()      
-    	        ))
+    	                u.getAvatar(),
+    	                u.getUuid()
+    	        )
+    	        		)
     	        .toList();
         return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("unite_libre")
+    @PreAuthorize("hasRole('PROPRIETAIRE')")
+    public ResponseEntity<List<UniteResponse>> getUniteLibre(){
+    	return ResponseEntity.ok(contratBailService.getUniteLibre());
     }
 
     // Contrats 
@@ -100,10 +110,17 @@ public class ContratBailController {
     }
 
     @GetMapping("mes_contrats")
-    @PreAuthorize("hasRole('LOCATAIRE')")
+    @PreAuthorize("hasRole('PROPRIETAIRE') or hasRole('LOCATAIRE')")
     public ResponseEntity<List<BailResponse>> mesContrats() {
         UUID locataireUuid = authUtils.getUtilisateurConnecte().getUuid();
         return ResponseEntity.ok(contratBailService.getContratsByLocataire(locataireUuid));
+    }
+    
+    @GetMapping("proprio_contrats")
+    @PreAuthorize("hasRole('PROPRIETAIRE') or hasRole('LOCATAIRE')")
+    public ResponseEntity<List<BailResponse>> proprioContrats() {
+        UUID id = authUtils.getUtilisateurConnecte().getUuid();
+        return ResponseEntity.ok(contratBailService.getContratsByProprietaire(id));
     }
 
     @PatchMapping("resilier/{contratUuid}")
@@ -119,6 +136,19 @@ public class ContratBailController {
     public ResponseEntity<List<EcheanceResponse>> getEcheances(@PathVariable UUID contratUuid) {
         return ResponseEntity.ok(echeanceService.getEcheancesByContrat(contratUuid));
     }
+    
+    @GetMapping("echeances_retard")
+    @PreAuthorize("hasRole('PROPRIETAIRE')")
+    public ResponseEntity<List<EcheanceResponse>> getEcheancesEnretard() {
+        return ResponseEntity.ok(echeanceService.echeanceEnRetard());
+    }
+    
+    @PostMapping("echeances/")
+    @PreAuthorize("hasRole('PROPRIETAIRE')")
+    public ResponseEntity<EcheanceResponse> addEcheance(@RequestBody EcheanceRequest request) {
+        return ResponseEntity.ok(echeanceService.creerEcheance(request));
+    }
+    
 
     // ─── Paiements ────────────────────────────────────────────────────────────
 

@@ -5,13 +5,18 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ipnet.rentalapi.Gbails.Enums.StatutEcheance;
+import com.ipnet.rentalapi.Gbails.Enums.TypeNotification;
+import com.ipnet.rentalapi.Gbails.dto.request.EcheanceRequest;
+import com.ipnet.rentalapi.Gbails.dto.request.NotificationRequest;
 import com.ipnet.rentalapi.Gbails.dto.response.EcheanceResponse;
 import com.ipnet.rentalapi.Gbails.models.ContratBail;
 import com.ipnet.rentalapi.Gbails.models.Echeance;
+import com.ipnet.rentalapi.Gbails.repository.ContratBailRepository;
 import com.ipnet.rentalapi.Gbails.repository.EcheanceRepository;
 
 @Service
@@ -19,23 +24,46 @@ import com.ipnet.rentalapi.Gbails.repository.EcheanceRepository;
 public class EcheanceService {
  
     private final EcheanceRepository echeanceRepository;
+    @Autowired
+    private  NotificationService notificationService;
+    private final ContratBailRepository contratBailRepository;
  
-    public EcheanceService(EcheanceRepository echeanceRepository) {
+    public EcheanceService(EcheanceRepository echeanceRepository,  ContratBailRepository contratBailRepository) {
         this.echeanceRepository = echeanceRepository;
+		this.contratBailRepository = contratBailRepository;
     }
  
     /**
      * Crée une échéance pour un contrat donné à une date donnée.
      * Appelé par le scheduler — la vérification d'idempotence est faite AVANT.
      */
-    public Echeance creerEcheance(ContratBail contrat, LocalDate dateEcheance) {
+    public EcheanceResponse creerEcheance(EcheanceRequest request) {
         Echeance echeance = new Echeance();
-        echeance.setContratBail(contrat);
-        echeance.setDateEcheance(dateEcheance);
+        ContratBail contrat = contratBailRepository.findByUuid(request.contrat_id()).orElseThrow(()->new RuntimeException("Contrat introuvable"));
+        echeance.setContratBail(contrat); 
+        echeance.setDateEcheance(request.dateEcheance());
         echeance.setMontantDu(contrat.getLoyer());
         echeance.setMontantRestant(contrat.getLoyer());
         echeance.setStatut(StatutEcheance.EN_ATTENTE);
-        return echeanceRepository.save(echeance);
+        
+        String message = String.format(
+                "Bonjour %s, votre loyer de %.0f FCFA pour l'unité %s est à régler avant le %s.",
+                contrat.getLocataire().getNomComplet(),
+                contrat.getLoyer(),
+                contrat.getUnite().getCode_unite(),
+                request.dateEcheance()
+        );
+       
+        notificationService.creerNotification(
+        		 new NotificationRequest(
+        	        		contrat.getLocataire(),
+        	                "Rappel de loyer — " + request.dateEcheance().getMonth().name(),
+        	                message,
+        	                TypeNotification.RELANCE_LOYER
+        	          )
+        		);
+
+        return toResponse(echeanceRepository.save(echeance));
     }
  
     /**
@@ -87,6 +115,23 @@ public class EcheanceService {
         }
  
         echeanceRepository.save(echeance);
+    }
+    
+    public List<EcheanceResponse> echeanceEnRetard(){
+    	List<Echeance> eEnRetard = echeanceRepository.findEcheancesEnRetard(LocalDate.now());
+    	eEnRetard.forEach(e -> e.setStatut(StatutEcheance.EN_RETARD));
+    	List<EcheanceResponse> response = eEnRetard
+    	        .stream()
+    	        .map(u -> new EcheanceResponse(
+    	        		u.getUuid(),
+    	        	    u.getDateEcheance(),
+    	        	    u.getMontantDu(),
+    	        	    u.getMontantRestant(),
+    	        	    u.getStatut(),
+    	        	    u.getContratBail().getUnite().getCode_unite()     
+    	        ))
+    	        .toList();
+    	return response;
     }
  
     /**

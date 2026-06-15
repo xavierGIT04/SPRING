@@ -31,9 +31,7 @@ public class NotificationService {
 	     * Méthode centrale appelée par ContratBailService et EcheanceScheduler.
 	     */
 	    public NotificationResponse creerNotification(NotificationRequest request) {
-	    	
-	    	
-	        
+	    	  
 	    	Notification notification = new Notification();
 	        notification.setLocataire(request.destinataire());
 	        notification.setTitre(request.titre());
@@ -41,9 +39,7 @@ public class NotificationService {
 	        notification.setDateEnvoi(LocalDateTime.now());
 	        notification.setTypeNotification(request.typeNotification());
 	        notification.setEstLu(false);
-	        
-	        
-	        
+	          
 	        return toResponse(notificationRepository.save(notification));
 	    }
 	 

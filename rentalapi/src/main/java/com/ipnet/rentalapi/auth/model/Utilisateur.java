@@ -39,6 +39,7 @@ public class Utilisateur implements UserDetails{
 	
 	private String nomComplet;
 	
+	@Column(unique = true)
 	private String telephone;
 	private String codeProprietaire;
 	

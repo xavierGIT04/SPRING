@@ -102,7 +102,8 @@ public class AuthService {
     			user.getProfil(), 
     			user.getRole(),
     			user.getNomComplet(),
-    			user.getAvatar()
+    			user.getAvatar(),
+    			user.getUuid()
     		);
     	
     }
@@ -115,7 +116,8 @@ public class AuthService {
     			user.getProfil(), 
     			user.getRole(),
     			user.getNomComplet(),
-    			user.getAvatar()
+    			user.getAvatar(),
+    			user.getUuid()
     		);
 
     }
@@ -125,7 +127,7 @@ public class AuthService {
     }
     
     public UtilisateurResponse getInfos(Utilisateur user) {
-    	return new UtilisateurResponse(user.getUsername(), user.getProfil(), user.getRole(), user.getNomComplet(), user.getAvatar());
+    	return new UtilisateurResponse(user.getUsername(), user.getProfil(), user.getRole(), user.getNomComplet(), user.getAvatar(), user.getUuid());
     }
 	
     

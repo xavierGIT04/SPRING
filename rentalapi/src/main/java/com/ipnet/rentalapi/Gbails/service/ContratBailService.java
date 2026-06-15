@@ -16,6 +16,9 @@ import com.ipnet.rentalapi.Gbails.dto.request.NotificationRequest;
 import com.ipnet.rentalapi.Gbails.dto.response.BailResponse;
 import com.ipnet.rentalapi.Gbails.models.ContratBail;
 import com.ipnet.rentalapi.Gbails.repository.ContratBailRepository;
+import com.ipnet.rentalapi.Glogement.Enums.StatutUnite;
+import com.ipnet.rentalapi.Glogement.dto.response.UniteResponse;
+import com.ipnet.rentalapi.Glogement.mappers.UniteMappers;
 import com.ipnet.rentalapi.Glogement.models.Unite;
 import com.ipnet.rentalapi.Glogement.repository.UniteRepository;
 import com.ipnet.rentalapi.auth.RoleEnum;
@@ -36,6 +39,7 @@ public class ContratBailService {
     private final PasswordEncoder passwordEncoder;
     private final NotificationService notificationService;
     private final AuthUtils authUtils;
+    private final UniteMappers mappers;
  
     
     public ContratBailService(
@@ -52,6 +56,7 @@ public class ContratBailService {
         this.passwordEncoder = passwordEncoder;
         this.notificationService = notificationService;
         this.authUtils = authUtils;
+		this.mappers = new UniteMappers();
     }
  
     /**
@@ -62,6 +67,7 @@ public class ContratBailService {
         newUser.setNomComplet(user.getNom());
         newUser.setPassword(passwordEncoder.encode(user.getCode()));
         newUser.setUsername(user.getTelephone());
+        newUser.setProfil(user.getProfil());
         newUser.setRole(RoleEnum.LOCATAIRE);
         newUser.setCreatedBy(authUtils.getUtilisateurConnecte());
  
@@ -72,8 +78,16 @@ public class ContratBailService {
                 saved.getProfil(),
                 saved.getRole(),
                 saved.getNomComplet(),
-                ""
+                "",
+                saved.getUuid()
         );
+    }
+    
+    public List<UniteResponse> getUniteLibre(){
+    	return uniteRepository.findUniteLibre(authUtils.getUtilisateurConnecte().getUuid(), StatutUnite.LIBRE)
+    						  .stream()
+    						  .map(u-> mappers.toResponse(u))
+    						  .toList();
     }
     
    
@@ -103,6 +117,7 @@ public class ContratBailService {
             int duree = (int) ChronoUnit.MONTHS.between(request.dateDebut(), request.dateSortie());
             bail.setDuree(duree);
         }
+        unite.setStatut(StatutUnite.OCCUPEE);
  
         ContratBail saved = contratBailRepository.save(bail);
  
@@ -148,6 +163,15 @@ public class ContratBailService {
                 .map(this::toResponse)
                 .toList();
     }
+    
+    
+    public List<BailResponse> getContratsByProprietaire(UUID id) {
+        return contratBailRepository
+                .findByPropietaire(id)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
  
     /**
      * Résiliation d'un contrat.
@@ -159,6 +183,7 @@ public class ContratBailService {
  
         contrat.setStatut(BailEnum.EN_COURS_DE_RESILIATION);
         contrat.setDateSortie(LocalDate.now());
+        contrat.getUnite().setStatut(StatutUnite.LIBRE);
  
         // Notification de résiliation
         

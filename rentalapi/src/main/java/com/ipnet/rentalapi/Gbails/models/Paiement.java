@@ -33,7 +33,7 @@ public class Paiement {
     @Column(name = "reference_paiement")
     private String referencePaiement; // Ex: ID transaction T-Money/Flooz ou Numéro de chèque
 
-    @Column(name = "recu_url")
+    @Column(name = "recu_url", nullable = true)
     private String recuUrl; // Lien vers la quittance de loyer au format PDF si générée
 
     // RELATIONS
