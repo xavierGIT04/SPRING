@@ -38,7 +38,7 @@ import com.ipnet.rentalapi.auth.service.AuthUtils;
 
 @RestController
 @RequestMapping("api/bail/")
-@CrossOrigin("http://localhost:4200/")
+@CrossOrigin("*")
 public class ContratBailController {
 
     private final ContratBailService contratBailService;

@@ -79,21 +79,21 @@ public class SecurityConfig {
     }
 	
 	@Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        
-        // ATTENTION : Ne pas utiliser "*" avec allowCredentials(true)
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200")); 
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH" ,"DELETE", "OPTIONS"));
-        
-        // Autoriser expressément les en-têtes dont Angular a besoin
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
-        
-        // Permet au navigateur de transmettre le Token de sécurité
-        configuration.setAllowCredentials(true); 
+	public CorsConfigurationSource corsConfigurationSource() {
+	    CorsConfiguration configuration = new CorsConfiguration();
+	    
+	    // Remplacer setAllowedOrigins par setAllowedOriginPatterns
+	    // Cela permet d'utiliser "*" même avec allowCredentials(true)
+	    configuration.setAllowedOriginPatterns(Arrays.asList("*")); 
+	    
+	    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+	    configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
+	    
+	    // Reste activé sans générer d'erreur
+	    configuration.setAllowCredentials(true); 
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // S'applique à toutes les routes
-        return source;
-    }
+	    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	    source.registerCorsConfiguration("/**", configuration); 
+	    return source;
+	}
 }

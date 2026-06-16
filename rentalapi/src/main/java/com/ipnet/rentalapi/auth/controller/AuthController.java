@@ -31,7 +31,7 @@ import com.ipnet.rentalapi.auth.service.JwtService;
 
 @RestController
 @RequestMapping("api/auth/")
-@CrossOrigin("http://localhost:4200/")
+@CrossOrigin("*")
 public class AuthController {
 	
     private  AuthService authService;

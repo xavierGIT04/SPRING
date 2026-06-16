@@ -24,7 +24,7 @@ import com.ipnet.rentalapi.Glogement.service.BienAirbnService;
 @RestController
 @RequestMapping("api/airbn/")
 @PreAuthorize("hasRole('PROPRIETAIRE')")
-@CrossOrigin("http://localhost:4200/")
+@CrossOrigin("*")
 public class AirbnController {
 
 	@Autowired

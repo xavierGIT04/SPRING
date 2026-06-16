@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 @RequestMapping("api/unite/")
 @PreAuthorize("hasRole('PROPRIETAIRE')")
-@CrossOrigin("http://localhost:4200/")
+@CrossOrigin("*")
 public class UniteController {
 	
 	@Autowired
