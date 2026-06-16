@@ -91,72 +91,88 @@ public class FedaPayService {
      * @param telephone    numéro Mobile Money du locataire (format: +22891000000)
      * @return URL de paiement FedaPay à ouvrir par le locataire
      */
-    public PaiementInitResult  initierPaiement(UUID echeanceUuid, String telephone) {
-        Echeance echeance = echeanceRepository.findByUuid(echeanceUuid)
-                .orElseThrow(() -> new RuntimeException("Échéance introuvable : " + echeanceUuid));
-
-        String locataireNom  = echeance.getContratBail().getLocataire().getNomComplet();
-        String locataireTel  = telephone;
-        String uniteCode     = echeance.getContratBail().getUnite().getCode_unite();
-        BigDecimal montant   = echeance.getMontantRestant();
-
-        // Corps de la requête FedaPay 
-        Map<String, Object> body = new HashMap<>();
-        body.put("amount",      montant.intValue());
-        body.put("currency",    Map.of("iso", "XOF"));
-        body.put("description", "Loyer " + uniteCode + " — " + echeance.getDateEcheance());
-        body.put("callback_url", callbackUrl);
-
-        // Métadonnées personnalisées — récupérées dans le webhook
-        body.put("custom_metadata", Map.of(
-                "echeance_uuid",  echeanceUuid.toString(),
-                "locataire_uuid", echeance.getContratBail().getLocataire().getUuid().toString()
-        ));
-
-        // Infos du client
-        body.put("customer", Map.of(
-                "firstname", locataireNom,
-                "phone_number", Map.of(
-                        "number",   locataireTel,
-                        "country",  "TG"
-                )
-        ));
-
-        try {
-            String url = getApiBase() + "/transactions";
-            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, buildHeaders());
-            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-
-            JsonNode json = objectMapper.readTree(response.getBody());
-
-            // FedaPay retourne l'ID de transaction et le token
-            JsonNode transaction = json.path("v1").path("transaction");
-            // Si la structure diffère selon votre version d'API, loguez json.toString()
-            // pour inspecter la réponse réelle et ajustez le path.
-            String transactionId = transaction.path("id").asText();
-            String token         = transaction.path("token").asText();
-
-	         if (token.isBlank()) {
-	             log.error("[FEDAPAY] Token absent dans la réponse : {}", json.toString());
-	             throw new RuntimeException("FedaPay n'a pas retourné de token de transaction");
-	         }
-	            // Construire l'URL de paiement
-	            String checkoutBase = "sandbox".equalsIgnoreCase(mode)
-	                    ? "https://sandbox-checkout.fedapay.com"
-	                    : "https://checkout.fedapay.com";
-	            String paymentUrl = checkoutBase + "/v1/pay/" + token;
+    public PaiementInitResult initierPaiement(UUID echeanceUuid, String telephone) {
+	    Echeance echeance = echeanceRepository.findByUuid(echeanceUuid)
+	            .orElseThrow(() -> new RuntimeException("Échéance introuvable : " + echeanceUuid));
 	
-	            log.info("[FEDAPAY] Transaction créée — id={} echéance={} montant={} FCFA",
-	                    transactionId, echeanceUuid, montant);
-	            	
-	            return new PaiementInitResult(paymentUrl, montant);
-
-	          
-        } catch (Exception e) {
-            log.error("[FEDAPAY] Erreur création transaction : {}", e.getMessage(), e);
-            throw new RuntimeException("Erreur lors de l'initiation du paiement FedaPay : " + e.getMessage());
-        }
-    }
+	    String locataireNom = echeance.getContratBail().getLocataire().getNomComplet();
+	    String uniteCode    = echeance.getContratBail().getUnite().getCode_unite();
+	    BigDecimal montant  = echeance.getMontantRestant();
+	
+	    // ── Étape 1 : Créer la transaction ───────────────────────────
+	    Map<String, Object> body = new HashMap<>();
+	    body.put("amount",       montant.intValue());
+	    body.put("currency",     Map.of("iso", "XOF"));
+	    body.put("description",  "Loyer " + uniteCode + " — " + echeance.getDateEcheance());
+	    body.put("callback_url", callbackUrl);
+	    body.put("custom_metadata", Map.of(
+	            "echeance_uuid",  echeanceUuid.toString(),
+	            "locataire_uuid", echeance.getContratBail().getLocataire().getUuid().toString()
+	    ));
+	    body.put("customer", Map.of(
+	            "firstname", locataireNom,
+	            "phone_number", Map.of(
+	                    "number",  telephone,
+	                    "country", "TG"
+	            )
+	    ));
+	
+	    try {
+	        // POST /v1/transactions
+	        String createUrl = getApiBase() + "/transactions";
+	        HttpEntity<Map<String, Object>> requestEntity =
+	                new HttpEntity<>(body, buildHeaders());
+	        ResponseEntity<String> createResponse =
+	                restTemplate.postForEntity(createUrl, requestEntity, String.class);
+	
+	        log.info("[FEDAPAY] Réponse création transaction : {}", createResponse.getBody());
+	
+	        JsonNode json = objectMapper.readTree(createResponse.getBody());
+	
+	        // ✅ L'id est directement à la racine
+	        String transactionId = json.path("id").asText();
+	
+	        if (transactionId.isBlank() || transactionId.equals("null")) {
+	            log.error("[FEDAPAY] ID absent dans la réponse : {}", json);
+	            throw new RuntimeException("FedaPay n'a pas retourné d'ID de transaction");
+	        }
+	
+	        // ── Étape 2 : Récupérer le token de paiement ─────────────
+	        // GET /v1/transactions/{id}/token
+	        String tokenUrl = getApiBase() + "/transactions/" + transactionId + "/token";
+	        HttpEntity<Void> tokenRequest = new HttpEntity<>(buildHeaders());
+	        ResponseEntity<String> tokenResponse = restTemplate.exchange(
+	                tokenUrl,
+	                org.springframework.http.HttpMethod.GET,
+	                tokenRequest,
+	                String.class
+	        );
+	
+	        log.info("[FEDAPAY] Réponse token : {}", tokenResponse.getBody());
+	
+	        JsonNode tokenJson = objectMapper.readTree(tokenResponse.getBody());
+	        String token = tokenJson.path("token").asText();
+	
+	        if (token.isBlank() || token.equals("null")) {
+	            log.error("[FEDAPAY] Token absent : {}", tokenJson);
+	            throw new RuntimeException("FedaPay n'a pas retourné de token");
+	        }
+	
+	        // ── Étape 3 : Construire l'URL de paiement ────────────────
+	        String checkoutBase = "sandbox".equalsIgnoreCase(mode)
+	                ? "https://sandbox-checkout.fedapay.com"
+	                : "https://checkout.fedapay.com";
+	        String paymentUrl = checkoutBase + "/v1/pay/" + token;
+	
+	        log.info("[FEDAPAY] Transaction {} créée — URL : {}", transactionId, paymentUrl);
+	
+	        return new PaiementInitResult(paymentUrl, montant);
+	
+	    } catch (Exception e) {
+	        log.error("[FEDAPAY] Erreur : {}", e.getMessage(), e);
+	        throw new RuntimeException("Erreur paiement FedaPay : " + e.getMessage());
+	    }
+}
 
     // 2. Traiter le résultat du webhook 
 
