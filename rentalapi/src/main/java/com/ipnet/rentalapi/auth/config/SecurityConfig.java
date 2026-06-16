@@ -58,8 +58,8 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(auth -> auth
                 // Swagger accessible sans token
-                .requestMatchers(SWAGGER_WHITELIST).permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(SWAGGER_WHITELIST).permitAll()
                 // Auth endpoints publics
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers("/api/auth/register").permitAll()
@@ -87,7 +87,7 @@ public class SecurityConfig {
 	    configuration.setAllowedOriginPatterns(Arrays.asList("*")); 
 	    
 	    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-	    configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
+	    configuration.setAllowedHeaders(Arrays.asList("*"));
 	    
 	    // Reste activé sans générer d'erreur
 	    configuration.setAllowCredentials(true); 
