@@ -68,7 +68,6 @@ public class ContratBailController {
     // Locataires
 
     @PostMapping("add_locataire")
-    @PreAuthorize("hasRole('PROPRIETAIRE')")
     public ResponseEntity<UtilisateurResponse> addLocataire(@RequestBody UtilisateurRequest request) {
         return ResponseEntity.ok(contratBailService.addLocataire(request));
     }
