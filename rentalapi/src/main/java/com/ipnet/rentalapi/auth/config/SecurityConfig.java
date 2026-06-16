@@ -83,8 +83,8 @@ public class SecurityConfig {
 	    CorsConfiguration configuration = new CorsConfiguration();
 	    
 	    // Remplacer setAllowedOrigins par setAllowedOriginPatterns
-	    // Cela permet d'utiliser "*" même avec allowCredentials(true)
-	    configuration.setAllowedOriginPatterns(Arrays.asList("*")); 
+	 
+	    configuration.setAllowedOrigins(java.util.List.of("https://rental-web-pm3e.onrender.com/"));  
 	    
 	    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 	    configuration.setAllowedHeaders(Arrays.asList("*"));
