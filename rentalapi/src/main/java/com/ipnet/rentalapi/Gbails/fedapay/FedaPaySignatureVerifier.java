@@ -35,6 +35,9 @@ public class FedaPaySignatureVerifier {
 
     @Value("${fedapay.webhook.secret}")
     private String webhookSecret;
+    
+    @Value("${fedapay.mode:sandbox}")
+    private String mode;
 
     /**
      * Vérifie la signature du webhook FedaPay.
@@ -44,68 +47,63 @@ public class FedaPaySignatureVerifier {
      * @throws FedaPaySignatureException si la signature est invalide ou le timestamp trop ancien
      */
     public void verifier(byte[] rawBody, String sigHeader) {
-        if (sigHeader == null || sigHeader.isBlank()) {
-            throw new FedaPaySignatureException("Header X-FEDAPAY-SIGNATURE absent ou vide");
-        }
 
-        // ── 1. Parser le header ─────────────────────────────────────────────
-        // Format attendu : "t=1234567890,v=abc123..."
-        String timestamp = null;
-        String signatureRecue = null;
-
-        for (String part : sigHeader.split(",")) {
-            if (part.startsWith("t=")) {
-                timestamp = part.substring(2).trim();
-            } else if (part.startsWith("v=")) {
-                signatureRecue = part.substring(2).trim();
-            }
-        }
-
-        if (timestamp == null || signatureRecue == null) {
-            throw new FedaPaySignatureException(
-                    "Format du header X-FEDAPAY-SIGNATURE invalide. Attendu : t=<ts>,v=<sig>"
-            );
-        }
-
-        // ── 2. Vérification anti-replay : timestamp < 5 minutes ────────────
-        long ts;
-        try {
-            ts = Long.parseLong(timestamp);
-        } catch (NumberFormatException e) {
-            throw new FedaPaySignatureException("Timestamp invalide dans le header : " + timestamp);
-        }
-
-        long maintenant = Instant.now().getEpochSecond();
-        if (Math.abs(maintenant - ts) > TOLERANCE_SECONDS) {
-            throw new FedaPaySignatureException(
-                    "Webhook rejeté : timestamp trop ancien ou futur (" + ts + "). " +
-                    "Possible attaque par replay."
-            );
-        }
-
-        // ── 3. Recalculer la signature HMAC-SHA256 ─────────────────────────
-        // Payload signé = timestamp + "." + rawBody
-        String rawBodyStr = new String(rawBody, StandardCharsets.UTF_8);
-        String payloadSigne = timestamp + "." + rawBodyStr;
-
-        String signatureCalculee = hmacSha256(webhookSecret, payloadSigne);
-
-        // ── 4. Comparaison en temps constant (anti-timing-attack) ──────────
-        boolean valide = MessageDigest.isEqual(
-                signatureCalculee.getBytes(StandardCharsets.UTF_8),
-                signatureRecue.getBytes(StandardCharsets.UTF_8)
-        );
-
-        if (!valide) {
-            log.warn("[FEDAPAY] Signature invalide. Reçue={} Calculée={}",
-                    signatureRecue, signatureCalculee);
-            throw new FedaPaySignatureException(
-                    "Signature FedaPay invalide. La requête n'est pas authentique."
-            );
-        }
-
-        log.debug("[FEDAPAY] Signature vérifiée avec succès (timestamp={})", timestamp);
+    // ── MODE SANDBOX : bypass signature ──────────────────────────
+    if ("sandbox".equalsIgnoreCase(mode)) {
+        log.warn("[FEDAPAY] Mode sandbox — vérification signature DÉSACTIVÉE");
+        return;
     }
+
+    // ── MODE LIVE : vérification complète ────────────────────────
+    if (sigHeader == null || sigHeader.isBlank()) {
+        throw new FedaPaySignatureException("Header X-FEDAPAY-SIGNATURE absent ou vide");
+    }
+
+    String timestamp = null;
+    String signatureRecue = null;
+
+    for (String part : sigHeader.split(",")) {
+        if (part.startsWith("t=")) timestamp = part.substring(2).trim();
+        else if (part.startsWith("v=")) signatureRecue = part.substring(2).trim();
+    }
+
+    if (timestamp == null || signatureRecue == null) {
+        throw new FedaPaySignatureException(
+            "Format du header X-FEDAPAY-SIGNATURE invalide. Attendu : t=<ts>,v=<sig>"
+        );
+    }
+
+    long ts;
+    try {
+        ts = Long.parseLong(timestamp);
+    } catch (NumberFormatException e) {
+        throw new FedaPaySignatureException("Timestamp invalide : " + timestamp);
+    }
+
+    long maintenant = Instant.now().getEpochSecond();
+    if (Math.abs(maintenant - ts) > TOLERANCE_SECONDS) {
+        throw new FedaPaySignatureException(
+            "Webhook rejeté : timestamp trop ancien (" + ts + ")"
+        );
+    }
+
+    String rawBodyStr = new String(rawBody, StandardCharsets.UTF_8);
+    String payloadSigne = timestamp + "." + rawBodyStr;
+    String signatureCalculee = hmacSha256(webhookSecret, payloadSigne);
+
+    boolean valide = MessageDigest.isEqual(
+        signatureCalculee.getBytes(StandardCharsets.UTF_8),
+        signatureRecue.getBytes(StandardCharsets.UTF_8)
+    );
+
+    if (!valide) {
+        log.warn("[FEDAPAY] Signature invalide. Reçue={} Calculée={}", 
+            signatureRecue, signatureCalculee);
+        throw new FedaPaySignatureException("Signature FedaPay invalide.");
+    }
+
+    log.debug("[FEDAPAY] Signature vérifiée avec succès (timestamp={})", timestamp);
+}
 
     // Calcul HMAC-SHA256 
 
