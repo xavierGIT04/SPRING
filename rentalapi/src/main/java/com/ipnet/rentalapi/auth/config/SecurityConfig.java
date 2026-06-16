@@ -72,11 +72,12 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOriginPatterns(List.of(
-            "https://rental-web-pm3e.onrender.com",
-            "http://localhost:*",
-            "capacitor://*",
-            "ionic://*",
-            "http://localhost"
+           "https://rental-web-pm3e.onrender.com",
+            "http://localhost",
+    "http://localhost:*",
+    "capacitor://localhost",   // ← exact, pas de wildcard
+    "ionic://localhost",       // ← exact, pas de wildcard
+    "https://localhost"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
