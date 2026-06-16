@@ -32,7 +32,8 @@ public class FedaPayWebhookController {
 
     private static final Logger log = LoggerFactory.getLogger(FedaPayWebhookController.class);
 
-    private static final String FEDAPAY_SIGNATURE_HEADER = "X-FEDAPAY-SIGNATURE";
+    // Correction du nom du header
+    private static final String FEDAPAY_SIGNATURE_HEADER = "X-FedaPay-Signature";
 
     private final FedaPaySignatureVerifier signatureVerifier;
     private final FedaPayService fedaPayService;
@@ -104,18 +105,16 @@ public class FedaPayWebhookController {
 
     //  Helper : lire le raw body depuis le ContentCachingRequestWrapper 
 
+    // Correction de getRawBody()
     private byte[] getRawBody(HttpServletRequest request) {
-        if (request instanceof ContentCachingRequestWrapper wrapper) {
-            byte[] cached = wrapper.getContentAsByteArray();
-            if (cached.length > 0) {
-                return cached;
-            }
+        if (request instanceof ReReadableRequestWrapper wrapper) {
+            return wrapper.getCachedBody(); 
         }
-        // Fallback si le filtre n'a pas wrappé (ne devrait pas arriver)
+        // Fallback (ne devrait jamais arriver)
         try {
             return request.getInputStream().readAllBytes();
         } catch (Exception e) {
-            throw new RuntimeException("Impossible de lire le body de la requête webhook", e);
+            throw new RuntimeException("Impossible de lire le body webhook", e);
         }
     }
 

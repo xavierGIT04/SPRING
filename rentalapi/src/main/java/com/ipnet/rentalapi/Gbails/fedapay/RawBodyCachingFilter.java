@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import java.io.IOException;
 
@@ -25,12 +24,9 @@ public class RawBodyCachingFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        ContentCachingRequestWrapper wrappedRequest =
-                new ContentCachingRequestWrapper(request, 1024 * 1024); // cache 1 MB max
-
-        // Forcer la lecture du body pour le mettre en cache
-        // avant que @RequestBody ne consomme le stream
-        wrappedRequest.getInputStream().readAllBytes();
+    	byte[] body = request.getInputStream().readAllBytes();
+        ReReadableRequestWrapper wrappedRequest =
+                new ReReadableRequestWrapper(request, body);
 
         filterChain.doFilter(wrappedRequest, response);
     }
