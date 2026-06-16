@@ -38,7 +38,6 @@ import com.ipnet.rentalapi.auth.service.AuthUtils;
 
 @RestController
 @RequestMapping("api/bail/")
-@CrossOrigin("https://rental-web-pm3e.onrender.com/")
 public class ContratBailController {
 
     private final ContratBailService contratBailService;

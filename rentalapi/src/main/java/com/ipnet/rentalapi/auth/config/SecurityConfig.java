@@ -48,52 +48,49 @@ public class SecurityConfig {
 		this.authenticationProvider = authenticationProvider;
 	}
 
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            .requestMatchers(SWAGGER_WHITELIST).permitAll()
+            .requestMatchers("/api/auth/login").permitAll()
+            .requestMatchers("/api/auth/register").permitAll()
+            .requestMatchers("/api/bail/webhook/**").permitAll()
+            .anyRequest().authenticated()
+        )
+        .sessionManagement(session ->
+            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        )
+        .authenticationProvider(authenticationProvider)
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-	@Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-        	.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        	
-            .csrf(AbstractHttpConfigurer::disable)
+    return http.build();
+}
 
-            .authorizeHttpRequests(auth -> auth
-                // Swagger accessible sans token
-                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers(SWAGGER_WHITELIST).permitAll()
-                // Auth endpoints publics
-                .requestMatchers("/api/auth/login").permitAll()
-                .requestMatchers("/api/auth/register").permitAll()
-                .requestMatchers("/api/bail/webhook/**").permitAll()
-                // Tout le reste necessite un JWT
-                .anyRequest().authenticated()
-            )
+@Bean
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    
+    // ✅ Sans slash final + app mobile autorisée
+    configuration.setAllowedOriginPatterns(List.of(
+        "https://rental-web-pm3e.onrender.com",
+        "http://localhost:*",       // dev local Angular
+        "capacitor://*",            // app mobile Ionic/Capacitor
+        "ionic://*",                // app mobile Ionic
+        "http://localhost"          // app mobile en dev
+    ));
+    
+    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+    configuration.setAllowedHeaders(List.of("*"));
+    configuration.setExposedHeaders(List.of("Authorization"));
+    configuration.setAllowCredentials(true);
+    configuration.setMaxAge(3600L); // cache preflight 1h
 
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-
-            .authenticationProvider(authenticationProvider)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }
-	
-	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-	    CorsConfiguration configuration = new CorsConfiguration();
-	    
-	    // Remplacer setAllowedOrigins par setAllowedOriginPatterns
-	 
-	    configuration.setAllowedOrigins(java.util.List.of("https://rental-web-pm3e.onrender.com/"));  
-	    
-	    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-	    configuration.setAllowedHeaders(Arrays.asList("*"));
-	    
-	    // Reste activé sans générer d'erreur
-	    configuration.setAllowCredentials(true); 
-
-	    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	    source.registerCorsConfiguration("/**", configuration); 
-	    return source;
-	}
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+}
 }

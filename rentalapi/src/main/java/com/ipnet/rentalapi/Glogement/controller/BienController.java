@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 @RequestMapping("api/bien/")
 @PreAuthorize("hasRole('PROPRIETAIRE')")
-@CrossOrigin("https://rental-web-pm3e.onrender.com/")
 public class BienController {
 
 	
