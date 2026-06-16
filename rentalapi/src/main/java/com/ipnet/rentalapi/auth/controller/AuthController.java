@@ -31,7 +31,7 @@ import com.ipnet.rentalapi.auth.service.JwtService;
 
 @RestController
 @RequestMapping("api/auth/")
-@CrossOrigin("*")
+@CrossOrigin("https://rental-web-pm3e.onrender.com/")
 public class AuthController {
 	
     private  AuthService authService;
