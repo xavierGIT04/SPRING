@@ -153,20 +153,24 @@ public class FedaPayService {
 	
 	        JsonNode tokenJson = objectMapper.readTree(tokenResponse.getBody());
 	        String token = tokenJson.path("token").asText();
-	
+
 	        if (token.isBlank() || token.equals("null")) {
 	            log.error("[FEDAPAY] Token absent : {}", tokenJson);
 	            throw new RuntimeException("FedaPay n'a pas retourné de token");
 	        }
-	
-	        // ── Étape 3 : Construire l'URL de paiement ────────────────
-	        String checkoutBase = "sandbox".equalsIgnoreCase(mode)
-	                ? "https://sandbox-checkout.fedapay.com"
-	                : "https://checkout.fedapay.com";
-	        String paymentUrl = checkoutBase + "/v1/pay/" + token;
-	
+
+	        // ── Étape 3 : Récupérer l'URL de paiement directement renvoyée par FedaPay ────
+	        // (plus fiable que de la reconstruire soi-même : le format de l'URL checkout
+	        //  peut évoluer côté FedaPay sans préavis)
+	        String paymentUrl = tokenJson.path("url").asText();
+
+	        if (paymentUrl.isBlank() || paymentUrl.equals("null")) {
+	            log.error("[FEDAPAY] URL de paiement absente dans la réponse token : {}", tokenJson);
+	            throw new RuntimeException("FedaPay n'a pas retourné d'URL de paiement");
+	        }
+
 	        log.info("[FEDAPAY] Transaction {} créée — URL : {}", transactionId, paymentUrl);
-	
+
 	        return new PaiementInitResult(paymentUrl, montant);
 	
 	    } catch (Exception e) {
