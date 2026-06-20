@@ -8,37 +8,29 @@ import java.math.BigDecimal;
 /**
  * Représente le payload JSON envoyé par FedaPay sur l'endpoint webhook.
  *
- * Structure réelle reçue :
+ * Structure réelle reçue (l'entity EST directement la transaction,
+ * il n'y a pas de niveau d'imbrication "transaction" supplémentaire) :
  * {
  *   "id": "evt_xxx",
  *   "name": "transaction.approved",
  *   "object": "event",
  *   "entity": {
- *     "id": 42,
- *     "klass": "Transaction",
- *     "transaction": {
- *       "id": 42,
- *       "reference": "xyz-123",
- *       "amount": 50000,
- *       "status": "approved",
- *       "description": "Loyer Janvier 2025",
- *       "custom_metadata": {
- *         "echeance_uuid": "...",
- *         "locataire_uuid": "..."
- *       }
+ *     "id": 458984,
+ *     "reference": "xyz-123",
+ *     "amount": 50000,
+ *     "status": "approved",
+ *     "custom_metadata": {
+ *       "echeance_uuid": "...",
+ *       "locataire_uuid": "..."
  *     }
  *   }
  * }
- *
- * on passe nos propres métadonnées dans "custom_metadata" lors
- * de la création de la transaction côté FedaPay, ce qui permet de
- * retrouver l'échéance à solder lors du callback.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record FedaPayWebhookPayload(
 
         @JsonProperty("id")
-        String eventId,         
+        String eventId,
 
         @JsonProperty("name")
         String eventName,       // "transaction.approved", "transaction.declined", ...
@@ -47,20 +39,8 @@ public record FedaPayWebhookPayload(
         String object,          // "event"
 
         @JsonProperty("entity")
-        Entity entity
+        Transaction entity      // ✅ entity EST la transaction, pas un wrapper
 ) {
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Entity(
-            @JsonProperty("id")
-            Long id,
-
-            @JsonProperty("klass")
-            String klass,       // "Transaction"
-
-            @JsonProperty("transaction")
-            Transaction transaction
-    ) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Transaction(
@@ -84,16 +64,15 @@ public record FedaPayWebhookPayload(
     ) {}
 
     /**
-     * Métadonnées personnalisées que vous injectez lors de la création
-     * de la transaction FedaPay côté backend (dans FedaPayService.initierPaiement).
-     * Elles vous permettent de retrouver l'échéance à solder.
+     * Métadonnées personnalisées injectées lors de la création
+     * de la transaction FedaPay (dans FedaPayService.initierPaiement).
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record CustomMetadata(
             @JsonProperty("echeance_uuid")
-            String echeanceUuid,    // UUID de l'Echeance dans votre base
+            String echeanceUuid,
 
             @JsonProperty("locataire_uuid")
-            String locataireUuid    // UUID du locataire (pour log / audit)
+            String locataireUuid
     ) {}
 }

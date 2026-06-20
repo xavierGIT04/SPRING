@@ -318,10 +318,10 @@ public class FedaPayService {
     }
 
     private FedaPayWebhookPayload.Transaction getTransaction(FedaPayWebhookPayload payload) {
-        if (payload.entity() == null || payload.entity().transaction() == null) {
+        if (payload.entity() == null) {
             throw new IllegalArgumentException("Payload FedaPay sans transaction : " + payload.eventId());
         }
-        return payload.entity().transaction();
+        return payload.entity();
     }
 
     private String getEcheanceUuid(FedaPayWebhookPayload payload) {
