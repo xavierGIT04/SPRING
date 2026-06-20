@@ -144,7 +144,7 @@ public class FedaPayService {
 	        HttpEntity<Void> tokenRequest = new HttpEntity<>(buildHeaders());
 	        ResponseEntity<String> tokenResponse = restTemplate.exchange(
 	                tokenUrl,
-	                org.springframework.http.HttpMethod.GET,
+	                org.springframework.http.HttpMethod.POST,
 	                tokenRequest,
 	                String.class
 	        );
