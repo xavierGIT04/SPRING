@@ -117,6 +117,38 @@ public class FedaPayWebhookController {
             throw new RuntimeException("Impossible de lire le body webhook", e);
         }
     }
+    
+    @GetMapping("/fedapay/retour")
+    public ResponseEntity<String> retourPaiement() {
+        String html = """
+            <!DOCTYPE html>
+            <html lang="fr">
+            <head>
+              <meta charset="UTF-8">
+              <title>Paiement — Rental</title>
+              <style>
+                body {
+                  font-family: -apple-system, sans-serif;
+                  text-align: center;
+                  padding: 60px 24px;
+                  background: #EBF3F4;
+                  color: #08363A;
+                }
+                h1 { color: #0D919C; margin-bottom: 8px; }
+                p { color: #64748B; font-size: 15px; line-height: 1.6; }
+              </style>
+            </head>
+            <body>
+              <h1>Merci !</h1>
+              <p>Votre paiement a bien été reçu et est en cours de traitement.</p>
+              <p>Vous pouvez fermer cette page et retourner sur l'application Rental.</p>
+            </body>
+            </html>
+            """;
+        return ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.TEXT_HTML)
+                .body(html);
+    }
 
     //  DTO de réponse 
 
