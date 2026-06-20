@@ -109,11 +109,13 @@ public class FedaPayService {
 	            "echeance_uuid",  echeanceUuid.toString(),
 	            "locataire_uuid", echeance.getContratBail().getLocataire().getUuid().toString()
 	    ));
+	    String customerCountry = "sandbox".equalsIgnoreCase(mode) ? "BJ" : "TG";
+
 	    body.put("customer", Map.of(
 	            "firstname", locataireNom,
 	            "phone_number", Map.of(
 	                    "number",  telephone,
-	                    "country", "TG"
+	                    "country", customerCountry
 	            )
 	    ));
 	
