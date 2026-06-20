@@ -127,11 +127,12 @@ public class FedaPayService {
 	
 	        log.info("[FEDAPAY] Réponse création transaction : {}", createResponse.getBody());
 	
+	        System.out.println("[FEDAPAY] Réponse création transaction : {}"+ createResponse.getBody());
 	        JsonNode json = objectMapper.readTree(createResponse.getBody());
 	
-	        // ✅ L'id est directement à la racine
-	        String transactionId = json.path("id").asText();
-	
+	        JsonNode transactionNode = json.has("id") ? json : json.path("v1/transaction");
+	        String transactionId = transactionNode.path("id").asText();
+
 	        if (transactionId.isBlank() || transactionId.equals("null")) {
 	            log.error("[FEDAPAY] ID absent dans la réponse : {}", json);
 	            throw new RuntimeException("FedaPay n'a pas retourné d'ID de transaction");
