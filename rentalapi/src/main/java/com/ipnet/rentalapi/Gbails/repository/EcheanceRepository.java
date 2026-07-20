@@ -1,5 +1,6 @@
 package com.ipnet.rentalapi.Gbails.repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -50,4 +51,65 @@ public interface EcheanceRepository extends JpaRepository<Echeance, Long> {
               AND e.dateEcheance < :today
             """)
     List<Echeance> findEcheancesEnRetard(@Param("today") LocalDate today);
+    
+    /**
+     * Liste des impayés en cours (EN_ATTENTE, PARTIELLEMENT_PAYE, EN_RETARD)
+     * pour un propriétaire, filtrable par bien et/ou unité. Utilisé par le
+     * dashboard Profil A (Module A5).
+     */
+    @Query("""
+            SELECT e FROM Echeance e
+            WHERE e.contratBail.unite.bien.proprietaire.uuid = :proprietaireUuid
+              AND e.statut IN ('EN_ATTENTE', 'PARTIELLEMENT_PAYE', 'EN_RETARD')
+              AND (:bienUuid IS NULL OR e.contratBail.unite.bien.uuid = :bienUuid)
+              AND (:uniteUuid IS NULL OR e.contratBail.unite.uuid = :uniteUuid)
+            ORDER BY e.dateEcheance ASC
+            """)
+    List<Echeance> findImpayesByProprietaire(
+            @Param("proprietaireUuid") UUID proprietaireUuid,
+            @Param("bienUuid") UUID bienUuid,
+            @Param("uniteUuid") UUID uniteUuid
+    );
+
+    /**
+     * Somme des loyers attendus (montantDu) sur une période donnée (année, mois optionnel),
+     * pour un propriétaire, filtrable par bien et/ou unité.
+     */
+    @Query("""
+            SELECT COALESCE(SUM(e.montantDu), 0) FROM Echeance e
+            WHERE e.contratBail.unite.bien.proprietaire.uuid = :proprietaireUuid
+              AND (:bienUuid IS NULL OR e.contratBail.unite.bien.uuid = :bienUuid)
+              AND (:uniteUuid IS NULL OR e.contratBail.unite.uuid = :uniteUuid)
+              AND YEAR(e.dateEcheance) = :annee
+              AND (:mois IS NULL OR MONTH(e.dateEcheance) = :mois)
+            """)
+    BigDecimal sumMontantDu(
+            @Param("proprietaireUuid") UUID proprietaireUuid,
+            @Param("bienUuid") UUID bienUuid,
+            @Param("uniteUuid") UUID uniteUuid,
+            @Param("annee") int annee,
+            @Param("mois") Integer mois
+    );
+
+    /**
+     * Somme des montants restants dus (impayés) sur une période donnée,
+     * pour un propriétaire, filtrable par bien et/ou unité.
+     */
+    @Query("""
+            SELECT COALESCE(SUM(e.montantRestant), 0) FROM Echeance e
+            WHERE e.contratBail.unite.bien.proprietaire.uuid = :proprietaireUuid
+              AND e.statut IN ('EN_ATTENTE', 'PARTIELLEMENT_PAYE', 'EN_RETARD')
+              AND (:bienUuid IS NULL OR e.contratBail.unite.bien.uuid = :bienUuid)
+              AND (:uniteUuid IS NULL OR e.contratBail.unite.uuid = :uniteUuid)
+              AND YEAR(e.dateEcheance) = :annee
+              AND (:mois IS NULL OR MONTH(e.dateEcheance) = :mois)
+            """)
+    BigDecimal sumMontantImpayePeriode(
+            @Param("proprietaireUuid") UUID proprietaireUuid,
+            @Param("bienUuid") UUID bienUuid,
+            @Param("uniteUuid") UUID uniteUuid,
+            @Param("annee") int annee,
+            @Param("mois") Integer mois
+    );
+
 }
