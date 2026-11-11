@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 import tg.nassara.estimation.enums.NatureBien;
+import tg.nassara.estimation.enums.PeriodiciteLoyer;
 import tg.nassara.estimation.enums.TypeAnnonce;
 
 import java.math.BigDecimal;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 
 /**
  * Annonce trouvée par un agent. Pour une vente : surface du terrain en m² OU nombre de lots (jamais les deux).
+ * Pour une location (bâti uniquement) : le montant est le loyer ; périodicité (MENSUEL par défaut) et meublé facultatifs.
  * Ne saisir que des faits (prix, surface, quartier) : ni texte copié, ni photo, ni numéro de téléphone.
  */
 public record CreationAnnonceMarcheRequest(
@@ -27,5 +29,7 @@ public record CreationAnnonceMarcheRequest(
         @DecimalMin(value = "0", inclusive = false) BigDecimal nombreLots,
         @DecimalMin(value = "0", inclusive = false) BigDecimal surfaceBatieM2,
         @NotNull @DecimalMin(value = "0", inclusive = false) BigDecimal montant,
+        PeriodiciteLoyer periodicite,
+        Boolean meuble,
         @PastOrPresent LocalDate datePublication) {
 }

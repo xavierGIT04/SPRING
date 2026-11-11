@@ -4,11 +4,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tg.nassara.estimation.dto.request.CreationAnnonceMarcheRequest;
+import tg.nassara.estimation.dto.request.ModificationAnnonceMarcheRequest;
 import tg.nassara.estimation.dto.response.AnnonceMarcheResponse;
 import tg.nassara.estimation.entity.AnnonceMarche;
 import tg.nassara.estimation.entity.reference.Quartier;
 import tg.nassara.estimation.entity.reference.TypeBien;
+import tg.nassara.estimation.enums.NatureBien;
 import tg.nassara.estimation.enums.OrigineAnnonce;
+import tg.nassara.estimation.enums.PeriodiciteLoyer;
 import tg.nassara.estimation.enums.TypeAnnonce;
 import tg.nassara.estimation.exception.ConflitException;
 import tg.nassara.estimation.exception.DonneesInvalidesException;
@@ -67,6 +70,19 @@ public class AnnonceMarcheService {
             throw new DonneesInvalidesException(
                     "Pour une vente, indiquez la surface du terrain (m²) ou le nombre de lots.");
         }
+        
+        PeriodiciteLoyer periodicite = null;
+        Boolean meuble = null;
+        if (requete.typeAnnonce() == TypeAnnonce.LOCATION) {
+            if (requete.nature() != NatureBien.BATI) {
+                throw new DonneesInvalidesException("Seules les locations de biens bâtis sont prises en compte.");
+            }
+            periodicite = requete.periodicite() != null ? requete.periodicite() : PeriodiciteLoyer.MENSUEL;
+            meuble = requete.meuble();
+        } else if (requete.periodicite() != null || requete.meuble() != null) {
+            throw new DonneesInvalidesException("La périodicité et l'indicateur meublé ne concernent que les locations.");
+        }
+        
         TypeBien typeBien = requete.typeBienId() == null ? null
                 : typeBienRepository.findById(requete.typeBienId()).orElseThrow(
                         () -> new RessourceIntrouvableException("Type de bien introuvable : " + requete.typeBienId()));
@@ -81,6 +97,8 @@ public class AnnonceMarcheService {
         annonce.setNature(requete.nature());
         annonce.setTypeBien(typeBien);
         annonce.setQuartier(quartier);
+        annonce.setPeriodicite(periodicite);
+        annonce.setMeuble(meuble);
         annonce.setQuartierBrut(quartier.getLibelle());
         annonce.setSurfaceTerrainM2(surfaceTerrain);
         annonce.setSurfaceBatieM2(requete.surfaceBatieM2());
@@ -108,6 +126,45 @@ public class AnnonceMarcheService {
         AnnonceMarche annonce = annonceRepository.findById(id)
                 .orElseThrow(() -> new RessourceIntrouvableException("Annonce introuvable : " + id));
         annonce.setActif(false);
+        return AnnonceMarcheResponse.depuis(annonceRepository.save(annonce));
+    }
+    
+    /** Correction d'une saisie manuelle ; une annonce du catalogue est réécrite à chaque actualisation, donc non modifiable. */
+    @Transactional
+    public AnnonceMarcheResponse modifier(Long id, ModificationAnnonceMarcheRequest requete) {
+        AnnonceMarche annonce = annonceRepository.findById(id)
+                .orElseThrow(() -> new RessourceIntrouvableException("Annonce introuvable : " + id));
+        if (annonce.getOrigine() != OrigineAnnonce.SAISIE_AGENT) {
+            throw new DonneesInvalidesException("Une annonce du catalogue est réécrite à chaque actualisation : "
+                    + "seules les saisies manuelles sont modifiables.");
+        }
+        if (requete.version() != null && !requete.version().equals(annonce.getVersion())) {
+            throw new ConflitException("L'annonce a été modifiée par quelqu'un d'autre. Rechargez-la puis réessayez.");
+        }
+        if (requete.montant() == null && requete.surfaceTerrainM2() == null && requete.surfaceBatieM2() == null
+                && requete.periodicite() == null && requete.meuble() == null) {
+            throw new DonneesInvalidesException("Aucune valeur à modifier.");
+        }
+        if (annonce.getTypeAnnonce() != TypeAnnonce.LOCATION
+                && (requete.periodicite() != null || requete.meuble() != null)) {
+            throw new DonneesInvalidesException("La périodicité et l'indicateur meublé ne concernent que les locations.");
+        }
+        if (requete.montant() != null) {
+            annonce.setMontant(requete.montant());
+        }
+        if (requete.surfaceTerrainM2() != null) {
+            annonce.setSurfaceTerrainM2(requete.surfaceTerrainM2());
+        }
+        if (requete.surfaceBatieM2() != null) {
+            annonce.setSurfaceBatieM2(requete.surfaceBatieM2());
+        }
+        if (requete.periodicite() != null) {
+            annonce.setPeriodicite(requete.periodicite());
+        }
+        if (requete.meuble() != null) {
+            annonce.setMeuble(requete.meuble());
+        }
+        annonce.setDateCollecte(LocalDate.now(FUSEAU)); // une correction vaut vérification
         return AnnonceMarcheResponse.depuis(annonceRepository.save(annonce));
     }
 }

@@ -68,10 +68,40 @@ public final class ClesParametres {
     /** Nombre minimal d'annonces comparables pour que la méthode conclue. */
     public static final String MARCHE_MIN_COMPARABLES = "MARCHE_MIN_COMPARABLES";
 
-    // --- Méthode 3 : capitalisation ---
+    // --- Méthode 3 : capitalisation (réutilise aussi MARCHE_FENETRE_JOURS et MARCHE_MAX_COMPARABLES) ---
     /** Taux de capitalisation utilisé si le quartier n'a pas le sien (fraction, ex. 0,08 = 8 %). */
     public static final String CAPITALISATION_TAUX_DEFAUT = "CAPITALISATION_TAUX_DEFAUT";
 
-    /** Part du loyer brut retirée pour obtenir le loyer net : vacance, charges, impôts (fraction). */
+    /** Part du loyer brut retirée pour obtenir le loyer net : vacance, charges, impôts (fraction, 0 inclus, 1 exclu). */
     public static final String CAPITALISATION_TAUX_CHARGES = "CAPITALISATION_TAUX_CHARGES";
+
+    /** Nombre minimal de loyers comparables pour que la méthode s'appuie sur le marché. */
+    public static final String CAPITALISATION_MIN_COMPARABLES = "CAPITALISATION_MIN_COMPARABLES";
+
+    /** Nuits payées par mois pour convertir un tarif à la nuitée en loyer mensuel (0 = nuitées ignorées, max 31). */
+    public static final String CAPITALISATION_NUITEES_PAR_MOIS = "CAPITALISATION_NUITEES_PAR_MOIS";
+
+    /** Facteur (0 exclu à 1) appliqué à un loyer meublé pour obtenir l'équivalent non meublé. */
+    public static final String CAPITALISATION_FACTEUR_MEUBLE = "CAPITALISATION_FACTEUR_MEUBLE";
+
+    /** Marge (0 inclus, 1 exclu) autour du loyer actuel du bien quand il sert de base faute de loyers de marché. */
+    public static final String CAPITALISATION_MARGE_FOURCHETTE = "CAPITALISATION_MARGE_FOURCHETTE";
+
+    /** Écart relatif entre loyer du bien et loyer de marché au-delà duquel un avertissement est émis. */
+    public static final String CAPITALISATION_ECART_ALERTE_LOYER_BIEN = "CAPITALISATION_ECART_ALERTE_LOYER_BIEN";
+
+    /** Confiance minimale et maximale de la méthode (entre 0 et 1). */
+    public static final String CAPITALISATION_CONFIANCE_MIN = "CAPITALISATION_CONFIANCE_MIN";
+    public static final String CAPITALISATION_CONFIANCE_MAX = "CAPITALISATION_CONFIANCE_MAX";
+
+    /** Poids de la dispersion des loyers dans la confiance (0 = ignorée). */
+    public static final String CAPITALISATION_PENALITE_DISPERSION = "CAPITALISATION_PENALITE_DISPERSION";
+
+    /** Facteur (0 à 1) appliqué à la confiance quand le taux de capitalisation est celui par défaut. */
+    public static final String CAPITALISATION_CONFIANCE_FACTEUR_TAUX_DEFAUT = "CAPITALISATION_CONFIANCE_FACTEUR_TAUX_DEFAUT";
+
+    /** Facteur (0 à 1) appliqué à la confiance quand la base est le loyer du bien et non le marché. */
+    public static final String CAPITALISATION_CONFIANCE_FACTEUR_LOYER_BIEN = "CAPITALISATION_CONFIANCE_FACTEUR_LOYER_BIEN";
+    
+    
 }

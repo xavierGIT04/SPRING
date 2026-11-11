@@ -2,6 +2,7 @@ package tg.nassara.estimation.service.marche;
 
 import org.junit.jupiter.api.Test;
 import tg.nassara.estimation.enums.NatureBien;
+import tg.nassara.estimation.enums.PeriodiciteLoyer;
 import tg.nassara.estimation.enums.TypeAnnonce;
 
 import java.util.List;
@@ -41,6 +42,34 @@ class AnalyseurCatalogueTest {
               <p>Prix sur demande</p>
               <span>ACHETER</span>
               <ul><li>Lits: 4</li><li>165 m²</li></ul>
+            </div>
+            </main></body></html>
+            """;
+    private static final String HTML_LOYERS = """
+            <html><body><main>
+            <div class="carte">
+              <a href="/status/villa/">VILLA</a>
+              <h2><a href="/Propriété/villa-meublee-a-louer-baguida/">Villa meublée à louer – Baguida</a></h2>
+              <ul><li>65,000<span>F CFA</span><span>/La nuitée</span></li></ul>
+              <span>LOUER</span>
+            </div>
+            <div class="carte">
+              <a href="/status/villa/">VILLA</a>
+              <h2><a href="/Propriété/villa-a-louer-agoe/">Villa à louer – Agoè</a></h2>
+              <ul><li>450,000F CFA</li></ul>
+              <span>LOUER</span>
+            </div>
+            <div class="carte">
+              <a href="/status/appartement/">APPARTEMENT</a>
+              <h2><a href="/Propriété/appartement-non-meuble-a-louer-tokoin/">Appartement non meublé à louer – Tokoin</a></h2>
+              <ul><li>300,000F CFA/Mois</li></ul>
+              <span>LOUER</span>
+            </div>
+            <div class="carte">
+              <a href="/status/villa/">VILLA</a>
+              <h2><a href="/Propriété/villa-a-louer-kodjoviakope/">Villa à louer – Kodjoviakopé</a></h2>
+              <ul><li>150,000F CFA/Semaine</li></ul>
+              <span>LOUER</span>
             </div>
             </main></body></html>
             """;
@@ -98,5 +127,50 @@ class AnalyseurCatalogueTest {
                 .isEqualTo(NatureBien.BATI);
         assertThat(AnalyseurCatalogue.determinerNature(Set.of("VILLA", "VILLA-INACHEVEE"))).isNull();
         assertThat(AnalyseurCatalogue.determinerNature(Set.of("BUREAUX"))).isNull();
+    }
+    
+    @Test
+    void analyser_litLaPeriodiciteEtLeMeubleDesLocations() {
+        List<AnnonceCollectee> annonces = AnalyseurCatalogue.analyser(HTML_LOYERS, BASE);
+
+        assertThat(annonces).hasSize(4);
+
+        AnnonceCollectee nuitee = annonces.get(0);
+        assertThat(nuitee.typeAnnonce()).isEqualTo(TypeAnnonce.LOCATION);
+        assertThat(nuitee.montant()).isEqualByComparingTo("65000");
+        assertThat(nuitee.periodicite()).isEqualTo(PeriodiciteLoyer.NUITEE);
+        assertThat(nuitee.meuble()).isTrue();
+
+        AnnonceCollectee sansSuffixe = annonces.get(1);
+        assertThat(sansSuffixe.montant()).isEqualByComparingTo("450000");
+        assertThat(sansSuffixe.periodicite()).isEqualTo(PeriodiciteLoyer.MENSUEL);
+        assertThat(sansSuffixe.meuble()).isNull();
+
+        AnnonceCollectee mensuel = annonces.get(2);
+        assertThat(mensuel.periodicite()).isEqualTo(PeriodiciteLoyer.MENSUEL);
+        assertThat(mensuel.meuble()).isFalse();
+
+        AnnonceCollectee semaine = annonces.get(3);
+        assertThat(semaine.periodicite()).isNull(); // suffixe inconnu : non retenue par le persisteur
+    }
+
+    @Test
+    void determinerPeriodicite_appliqueLesReglesDeSuffixe() {
+        assertThat(AnalyseurCatalogue.determinerPeriodicite("65,000F CFA/La nuitée", "")).isEqualTo(PeriodiciteLoyer.NUITEE);
+        assertThat(AnalyseurCatalogue.determinerPeriodicite("300,000F CFA/Mois", "")).isEqualTo(PeriodiciteLoyer.MENSUEL);
+        assertThat(AnalyseurCatalogue.determinerPeriodicite("600,000F CFA", "Villa à louer")).isEqualTo(PeriodiciteLoyer.MENSUEL);
+        assertThat(AnalyseurCatalogue.determinerPeriodicite("65,000F CFA", "Villa à la nuitée")).isEqualTo(PeriodiciteLoyer.NUITEE);
+        assertThat(AnalyseurCatalogue.determinerPeriodicite("150,000F CFA/Semaine", "")).isNull();
+        assertThat(AnalyseurCatalogue.determinerPeriodicite("Prix sur demande", "")).isNull();
+        assertThat(AnalyseurCatalogue.determinerPeriodicite(null, "")).isNull();
+    }
+
+    @Test
+    void determinerMeuble_distingueMeubleNonMeubleEtInconnu() {
+        assertThat(AnalyseurCatalogue.determinerMeuble("Villa meublée à louer")).isTrue();
+        assertThat(AnalyseurCatalogue.determinerMeuble("Appartement non meublé")).isFalse();
+        assertThat(AnalyseurCatalogue.determinerMeuble("Appartement non-meublé")).isFalse();
+        assertThat(AnalyseurCatalogue.determinerMeuble("Villa à louer")).isNull();
+        assertThat(AnalyseurCatalogue.determinerMeuble(null)).isNull();
     }
 }

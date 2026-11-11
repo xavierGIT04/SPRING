@@ -6,6 +6,7 @@ import org.jsoup.nodes.Element;
 import tg.nassara.estimation.enums.NatureBien;
 import tg.nassara.estimation.enums.TypeAnnonce;
 import tg.nassara.estimation.service.parametrage.QuartierService;
+import tg.nassara.estimation.enums.PeriodiciteLoyer;
 
 import java.math.BigDecimal;
 import java.net.URI;
@@ -44,6 +45,10 @@ public final class AnalyseurCatalogue {
     private static final Pattern SEPARATEUR_TITRE = Pattern.compile("\\s*[–—,]\\s*|\\s+-\\s+|\\s+à\\s+");
 
     private static final Set<String> NATURES_BATI = Set.of("MAISON", "VILLA", "APPARTEMENT", "IMMEUBLE", "PROPRIETE");
+    private static final Pattern NUITEE = Pattern.compile("\\bnuit", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+    private static final Pattern MOIS = Pattern.compile("\\b(mois|mensuel)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+    private static final Pattern NON_MEUBLE = Pattern.compile("\\bnon[\\s-]*meubl", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+    private static final Pattern MEUBLE = Pattern.compile("\\bmeubl", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     private AnalyseurCatalogue() {
     }
@@ -88,12 +93,12 @@ public final class AnalyseurCatalogue {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
-        BigDecimal montant = conteneur.getAllElements().stream()
+        String textePrix = conteneur.getAllElements().stream()
                 .map(Element::text)
                 .filter(t -> MONTANT.matcher(t).find())
                 .min(Comparator.comparingInt(String::length))
-                .map(AnalyseurCatalogue::extraireMontant)
                 .orElse(null);
+        BigDecimal montant = extraireMontant(textePrix);
 
         BigDecimal surface = conteneur.getAllElements().stream()
                 .map(e -> extraireSurface(e.text()))
@@ -101,11 +106,56 @@ public final class AnalyseurCatalogue {
                 .findFirst()
                 .orElse(null);
 
+        // Le texte du bloc, titre compris : « meublée » ou « à la nuitée » figurent souvent dans le titre.
+        String texteBloc = conteneur.text();
+        PeriodiciteLoyer periodicite = type == TypeAnnonce.LOCATION ? determinerPeriodicite(textePrix, texteBloc) : null;
+        Boolean meuble = type == TypeAnnonce.LOCATION ? determinerMeuble(texteBloc) : null;
+
         return Optional.of(new AnnonceCollectee(
                 tronquer(url, 600), tronquer(titre, 255), type, determinerNature(categories),
-                montant, surface, tronquer(extraireQuartierBrut(titre), 150)));
+                montant, surface, tronquer(extraireQuartierBrut(titre), 150), periodicite, meuble));
     }
 
+    /**
+     * Périodicité d'un loyer d'après le suffixe du prix : « nuit » = nuitée ; « mois » ou « mensuel » = mensuel ;
+     * aucun suffixe = mensuel, sauf si le bloc de l'annonce parle de nuitée ; autre suffixe (semaine, etc.) = inconnue (null).
+     * Le doute penche toujours vers « nuitée » : un loyer écarté coûte moins qu'une nuitée prise pour un mois.
+     */
+    static PeriodiciteLoyer determinerPeriodicite(String textePrix, String texteBloc) {
+        if (textePrix == null) {
+            return null;
+        }
+        Matcher m = MONTANT.matcher(textePrix);
+        if (!m.find()) {
+            return null;
+        }
+        String suffixe = textePrix.substring(m.end()).strip();
+        if (NUITEE.matcher(suffixe).find()) {
+            return PeriodiciteLoyer.NUITEE;
+        }
+        if (MOIS.matcher(suffixe).find()) {
+            return PeriodiciteLoyer.MENSUEL;
+        }
+        if (!suffixe.isEmpty()) {
+            return null;
+        }
+        return (texteBloc != null && NUITEE.matcher(texteBloc).find())
+                ? PeriodiciteLoyer.NUITEE : PeriodiciteLoyer.MENSUEL;
+    }
+
+    /** « non meublé » = faux, « meublé » = vrai, sinon inconnu (null). */
+    static Boolean determinerMeuble(String texte) {
+        if (texte == null) {
+            return null;
+        }
+        if (NON_MEUBLE.matcher(texte).find()) {
+            return Boolean.FALSE;
+        }
+        if (MEUBLE.matcher(texte).find()) {
+            return Boolean.TRUE;
+        }
+        return null;
+    }
     // ---------- Découpage de la page ----------
 
     static boolean estLienAnnonce(String url) {

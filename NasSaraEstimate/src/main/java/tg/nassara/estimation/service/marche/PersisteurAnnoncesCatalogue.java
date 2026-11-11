@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tg.nassara.estimation.entity.AnnonceMarche;
 import tg.nassara.estimation.entity.reference.Quartier;
+import tg.nassara.estimation.enums.NatureBien;
 import tg.nassara.estimation.enums.OrigineAnnonce;
 import tg.nassara.estimation.enums.TypeAnnonce;
 import tg.nassara.estimation.repository.AnnonceMarcheRepository;
@@ -23,6 +24,7 @@ import java.util.Set;
  * Enregistre les annonces lues sur le catalogue (transaction courte, après la lecture HTTP).
  * Étape 5 : seules les VENTES avec un prix sont retenues ; les locations viendront avec la méthode 3
  * (périodicité et meublé à gérer).
+ * les ventes avec prix et les locations de bâti avec prix et périodicité reconnue sont retenues
  */
 @Service
 public class PersisteurAnnoncesCatalogue {
@@ -52,7 +54,7 @@ public class PersisteurAnnoncesCatalogue {
         int retenues = 0;
 
         for (AnnonceCollectee c : collectees) {
-            if (c.typeAnnonce() != TypeAnnonce.VENTE || c.nature() == null || c.montant() == null) {
+            if (!estRetenue(c)) {
                 continue;
             }
             AnnonceMarche annonce = annonceRepository.findByUrlSource(c.urlSource())
@@ -67,8 +69,10 @@ public class PersisteurAnnoncesCatalogue {
             annonce.setTypeAnnonce(c.typeAnnonce());
             annonce.setNature(c.nature());
             annonce.setMontant(c.montant());
-            // Hypothèse à valider avec l'agence : la surface affichée au catalogue est celle du terrain.
-            annonce.setSurfaceTerrainM2(c.surfaceM2());
+            // Hypothèse à valider avec l'agence : la surface affichée au catalogue est celle du terrain (ventes seulement).
+            annonce.setSurfaceTerrainM2(c.typeAnnonce() == TypeAnnonce.VENTE ? c.surfaceM2() : null);
+            annonce.setPeriodicite(c.typeAnnonce() == TypeAnnonce.LOCATION ? c.periodicite() : null);
+            annonce.setMeuble(c.typeAnnonce() == TypeAnnonce.LOCATION ? c.meuble() : null);
             annonce.setQuartierBrut(c.quartierBrut());
             annonce.setQuartier(rapprocher(c.titre(), cles));
             annonce.setDateCollecte(aujourdhui);
@@ -113,5 +117,16 @@ public class PersisteurAnnoncesCatalogue {
             }
         }
         return null;
+    }
+    
+    /** Ventes avec prix ; locations de biens bâtis avec loyer et périodicité reconnue. */
+    static boolean estRetenue(AnnonceCollectee c) {
+        if (c.typeAnnonce() == null || c.nature() == null || c.montant() == null) {
+            return false;
+        }
+        return switch (c.typeAnnonce()) {
+            case VENTE -> true;
+            case LOCATION -> c.nature() == NatureBien.BATI && c.periodicite() != null;
+        };
     }
 }

@@ -12,6 +12,7 @@ import tg.nassara.estimation.entity.reference.Quartier;
 import tg.nassara.estimation.entity.reference.TypeBien;
 import tg.nassara.estimation.enums.NatureBien;
 import tg.nassara.estimation.enums.OrigineAnnonce;
+import tg.nassara.estimation.enums.PeriodiciteLoyer;
 import tg.nassara.estimation.enums.TypeAnnonce;
 
 import java.math.BigDecimal;
@@ -82,6 +83,19 @@ public class AnnonceMarche extends EntiteBase {
 
     @Column(nullable = false)
     private boolean actif = true;
+    
+    /** Loyer mensuel (longue durée) ou à la nuitée. Nul pour une vente. */
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private PeriodiciteLoyer periodicite;
+
+    /** Vrai ou faux si l'annonce le précise, nul si inconnu. Nul pour une vente. */
+    private Boolean meuble;
+
+    public PeriodiciteLoyer getPeriodicite() { return periodicite; }
+    public void setPeriodicite(PeriodiciteLoyer periodicite) { this.periodicite = periodicite; }
+    public Boolean getMeuble() { return meuble; }
+    public void setMeuble(Boolean meuble) { this.meuble = meuble; }
 
     public String getSource() { return source; }
     public void setSource(String source) { this.source = source; }

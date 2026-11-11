@@ -39,4 +39,18 @@ public interface AnnonceMarcheRepository extends JpaRepository<AnnonceMarche, Lo
                                         @Param("depuis") LocalDate depuis,
                                         @Param("surfaceMin") BigDecimal surfaceMin,
                                         @Param("surfaceMax") BigDecimal surfaceMax);
+    
+    /** Loyers comparables : même quartier, même nature, locations actives et récentes (sans filtre de surface). */
+    @Query("""
+            select a from AnnonceMarche a
+            where a.actif = true
+              and a.quartier.id = :quartierId
+              and a.nature = :nature
+              and a.typeAnnonce = :typeAnnonce
+              and a.dateCollecte >= :depuis
+            """)
+    List<AnnonceMarche> findLoyersComparables(@Param("quartierId") Long quartierId,
+                                              @Param("nature") NatureBien nature,
+                                              @Param("typeAnnonce") TypeAnnonce typeAnnonce,
+                                              @Param("depuis") LocalDate depuis);
 }
