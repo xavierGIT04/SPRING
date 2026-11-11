@@ -67,7 +67,7 @@ public class QuartierService {
     }
 
     /** « Tokoïn Ouest » devient « TOKOIN-OUEST » : sans accents, majuscules, tirets. */
-    static String normaliser(String texte) {
+    public static String normaliser(String texte) {
         if (texte == null) {
             return "";
         }

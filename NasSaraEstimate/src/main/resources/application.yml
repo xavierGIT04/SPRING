@@ -13,3 +13,8 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+nassara:
+  catalogue:
+    url: https://nassarraimmobilier.com/notre-catalogue/
+    delai-secondes: 10
+    duree-cache-minutes: 5

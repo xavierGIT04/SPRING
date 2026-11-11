@@ -11,22 +11,38 @@ import jakarta.persistence.Table;
 import tg.nassara.estimation.entity.reference.Quartier;
 import tg.nassara.estimation.entity.reference.TypeBien;
 import tg.nassara.estimation.enums.NatureBien;
+import tg.nassara.estimation.enums.OrigineAnnonce;
 import tg.nassara.estimation.enums.TypeAnnonce;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/** Annonce web collectée : base de la comparaison de marché et du loyer moyen. */
+/**
+ * Annonce servant à la comparaison de marché : lue sur le catalogue de l'agence ou saisie par un agent.
+ * Pour une vente, la surface retenue pour comparer est celle du terrain.
+ */
 @Entity
 @Table(name = "annonce_marche")
 public class AnnonceMarche extends EntiteBase {
 
+    /** Origine lisible : « CATALOGUE_NAS_SARRA », ou le site / la provenance indiquée par l'agent. */
     @Column(nullable = false, length = 80)
     private String source;
 
-    /** URL unique : évite les doublons à chaque collecte. */
-    @Column(nullable = false, unique = true, length = 600)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private OrigineAnnonce origine;
+
+    /** URL unique (évite les doublons) ; facultative pour une saisie manuelle sans lien. */
+    @Column(length = 600, unique = true)
     private String urlSource;
+
+    @Column(length = 255)
+    private String titre;
+
+    /** Identifiant de l'agent pour une saisie manuelle. */
+    @Column(length = 120)
+    private String saisiePar;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -60,6 +76,7 @@ public class AnnonceMarche extends EntiteBase {
 
     private LocalDate datePublication;
 
+    /** Date de dernière vérification : pour le catalogue, mise à jour à chaque synchronisation tant que l'annonce est en ligne. */
     @Column(nullable = false)
     private LocalDate dateCollecte;
 
@@ -68,8 +85,14 @@ public class AnnonceMarche extends EntiteBase {
 
     public String getSource() { return source; }
     public void setSource(String source) { this.source = source; }
+    public OrigineAnnonce getOrigine() { return origine; }
+    public void setOrigine(OrigineAnnonce origine) { this.origine = origine; }
     public String getUrlSource() { return urlSource; }
     public void setUrlSource(String urlSource) { this.urlSource = urlSource; }
+    public String getTitre() { return titre; }
+    public void setTitre(String titre) { this.titre = titre; }
+    public String getSaisiePar() { return saisiePar; }
+    public void setSaisiePar(String saisiePar) { this.saisiePar = saisiePar; }
     public TypeAnnonce getTypeAnnonce() { return typeAnnonce; }
     public void setTypeAnnonce(TypeAnnonce typeAnnonce) { this.typeAnnonce = typeAnnonce; }
     public NatureBien getNature() { return nature; }
