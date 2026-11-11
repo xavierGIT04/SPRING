@@ -103,5 +103,10 @@ public final class ClesParametres {
     /** Facteur (0 à 1) appliqué à la confiance quand la base est le loyer du bien et non le marché. */
     public static final String CAPITALISATION_CONFIANCE_FACTEUR_LOYER_BIEN = "CAPITALISATION_CONFIANCE_FACTEUR_LOYER_BIEN";
     
-    
+    // --- Fusion des méthodes (orchestrateur) ---
+    /** Écart relatif entre les prix centraux des méthodes au-delà duquel un avertissement est émis (ex. 0,30). */
+    public static final String FUSION_ECART_ALERTE_METHODES = "FUSION_ECART_ALERTE_METHODES";
+
+    /** Facteur (0 à 1) appliqué à la confiance quand une seule méthode conclut (aucun recoupement). */
+    public static final String FUSION_CONFIANCE_FACTEUR_METHODE_UNIQUE = "FUSION_CONFIANCE_FACTEUR_METHODE_UNIQUE";
 }
