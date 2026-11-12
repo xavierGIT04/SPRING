@@ -1,10 +1,14 @@
 package tg.nassara.estimation.service.bien;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tg.nassara.estimation.dto.request.CreationBienRequest;
 import tg.nassara.estimation.dto.request.EquipementRequest;
 import tg.nassara.estimation.dto.response.BienResponse;
+import tg.nassara.estimation.dto.response.BienResume;
+import tg.nassara.estimation.dto.response.PageResponse;
 import tg.nassara.estimation.entity.Bien;
 import tg.nassara.estimation.entity.BienBati;
 import tg.nassara.estimation.entity.Equipement;
@@ -172,5 +176,13 @@ public class BienService {
             throw new DonneesInvalidesException(libelle + " « " + valeur.getLibelle() + " » est désactivé(e).");
         }
         return valeur;
+    }
+    
+    @Transactional(readOnly = true)
+    public PageResponse<BienResume> lister(int page, int taille) {
+        Page<Bien> resultat = bienRepository.findAllByOrderByDateCreationDesc(
+                PageRequest.of(Math.max(page, 0), Math.min(Math.max(taille, 1), 100)));
+        return new PageResponse<>(resultat.getContent().stream().map(BienResume::depuis).toList(),
+                resultat.getNumber(), resultat.getSize(), resultat.getTotalElements(), resultat.getTotalPages());
     }
 }

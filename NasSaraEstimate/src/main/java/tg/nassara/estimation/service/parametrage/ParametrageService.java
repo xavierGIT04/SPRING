@@ -2,6 +2,8 @@ package tg.nassara.estimation.service.parametrage;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import tg.nassara.estimation.dto.response.ChampDescriptionResponse;
 import tg.nassara.estimation.dto.response.HistoriqueParametreResponse;
 import tg.nassara.estimation.dto.response.PageResponse;
 import tg.nassara.estimation.dto.response.ParametreResponse;
@@ -42,7 +44,8 @@ public class ParametrageService {
                 .map(d -> new TypeParametreResponse(
                         d.type(),
                         d.champs().stream().filter(c -> !c.immuable()).map(c -> c.nom()).toList(),
-                        d.champs().stream().filter(c -> c.immuable()).map(c -> c.nom()).toList()))
+                        d.champs().stream().filter(c -> c.immuable()).map(c -> c.nom()).toList(),
+                        d.champs().stream().map(ChampDescriptionResponse::depuis).toList()))
                 .toList();
     }
 

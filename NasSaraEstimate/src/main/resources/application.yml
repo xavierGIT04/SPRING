@@ -18,3 +18,5 @@ nassara:
     url: https://nassarraimmobilier.com/notre-catalogue/
     delai-secondes: 10
     duree-cache-minutes: 5
+  cors:
+    origines: http://localhost:4200
