@@ -3,10 +3,12 @@ spring:
     name: estimation-immobiliere
   profiles:
     active: dev
+  config:
+    import: optional:file:.env[.properties]
   datasource:
-    url: jdbc:postgresql://localhost:5432/nassara_estimation
-    username: postgres
-    password: root
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/nassara_estimation}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:root}
   jpa:
     open-in-view: false
     properties:

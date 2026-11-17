@@ -32,7 +32,7 @@ public class BienBati extends Bien {
     private Integer nombreNiveaux;
 
     /** Vrai si le bien est locatif ou commercial : la capitalisation devient activable. */
-    @Column(nullable = false)
+    @Column(name = "locatif_ou_commercial")
     private boolean locatifOuCommercial;
 
     @Column(precision = 15, scale = 2)
@@ -53,7 +53,7 @@ public class BienBati extends Bien {
     public void setAnneeConstruction(Integer anneeConstruction) { this.anneeConstruction = anneeConstruction; }
     public Integer getNombreNiveaux() { return nombreNiveaux; }
     public void setNombreNiveaux(Integer nombreNiveaux) { this.nombreNiveaux = nombreNiveaux; }
-    public boolean isLocatifOuCommercial() { return locatifOuCommercial; }
+    public boolean isLocatifOuCommercial() { return Boolean.TRUE.equals(locatifOuCommercial); }
     public void setLocatifOuCommercial(boolean locatifOuCommercial) { this.locatifOuCommercial = locatifOuCommercial; }
     public BigDecimal getLoyerMensuelActuel() { return loyerMensuelActuel; }
     public void setLoyerMensuelActuel(BigDecimal loyerMensuelActuel) { this.loyerMensuelActuel = loyerMensuelActuel; }
