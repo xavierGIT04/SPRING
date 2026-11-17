@@ -81,4 +81,17 @@ public record ChampParametre<T>(
                 false, true, GenreChamp.ENUMERATION, false,
                 Arrays.stream(type.getEnumConstants()).map(Enum::name).toList());
     }
+    
+    /** Énumération modifiable et facultative : une valeur vide laisse la valeur actuelle (ou par défaut). */
+    public static <T, E extends Enum<E>> ChampParametre<T> enumerationOptionnelle(
+            String nom, Class<E> type, Function<T, E> lecteur, BiConsumer<T, E> ecriveur) {
+        return new ChampParametre<T>(nom, e -> lecteur.apply(e),
+                (e, v) -> {
+                    if (Convertisseurs.texteOptionnel(v) != null) {
+                        ecriveur.accept(e, Convertisseurs.enumeration(nom, type, v));
+                    }
+                },
+                false, false, GenreChamp.ENUMERATION, true,
+                Arrays.stream(type.getEnumConstants()).map(Enum::name).toList());
+    }
 }

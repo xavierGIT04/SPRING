@@ -19,4 +19,9 @@ public record Acteur(String identifiant, OrigineModification origine) {
     public static Acteur apprentissage() {
         return new Acteur("systeme-apprentissage", OrigineModification.APPRENTISSAGE);
     }
+    
+    /** Initialisation des valeurs par défaut au démarrage. */
+    public static Acteur systeme() {
+        return new Acteur("systeme-initialisation", OrigineModification.SYSTEME);
+    }
 }

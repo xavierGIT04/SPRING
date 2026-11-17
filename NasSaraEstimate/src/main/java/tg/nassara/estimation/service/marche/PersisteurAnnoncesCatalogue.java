@@ -99,6 +99,11 @@ public class PersisteurAnnoncesCatalogue {
             Set<String> variantes = new LinkedHashSet<>();
             variantes.add(QuartierService.normaliser(quartier.getCode()));
             variantes.add(QuartierService.normaliser(quartier.getLibelle()));
+            if (quartier.getLocalites() != null) {
+                for (String localite : quartier.getLocalites().split(";")) {
+                    variantes.add(QuartierService.normaliser(localite));
+                }
+            }
             for (String variante : variantes) {
                 if (!variante.isEmpty()) {
                     cles.add(new CleQuartier(variante, quartier));

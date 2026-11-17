@@ -17,6 +17,7 @@ import tg.nassara.estimation.entity.reference.TypeVoie;
 import tg.nassara.estimation.entity.reference.Viabilisation;
 import tg.nassara.estimation.enums.MethodeEstimation;
 import tg.nassara.estimation.enums.NatureBien;
+import tg.nassara.estimation.enums.NiveauParametre;
 import tg.nassara.estimation.repository.ParametreGlobalRepository;
 import tg.nassara.estimation.repository.PonderationMethodeRepository;
 import tg.nassara.estimation.repository.QuartierRepository;
@@ -108,18 +109,20 @@ public class DefinitionsParametresConfig {
 
     @Bean
     public DefinitionParametre<Quartier> definitionQuartiers(QuartierRepository repository) {
-        List<ChampParametre<Quartier>> champs = List.of(
-                ChampParametre.<Quartier>texteImmuable("code", Quartier::getCode, Quartier::setCode),
-                ChampParametre.<Quartier>texte("libelle", Quartier::getLibelle, Quartier::setLibelle),
-                ChampParametre.<Quartier>decimalPositif("prixBaseTerrainM2",
-                        Quartier::getPrixBaseTerrainM2, Quartier::setPrixBaseTerrainM2),
-                ChampParametre.<Quartier>decimalPositif("coefficientZone",
-                        Quartier::getCoefficientZone, Quartier::setCoefficientZone),
-                ChampParametre.<Quartier>decimalPositifOptionnel("tauxCapitalisation",
-                        Quartier::getTauxCapitalisation, Quartier::setTauxCapitalisation),
-                ChampParametre.<Quartier>booleen("prixBaseProvisoire",
-                        Quartier::isPrixBaseProvisoire, Quartier::setPrixBaseProvisoire),
-                ChampParametre.<Quartier>activation("actif", Quartier::isActif, Quartier::setActif));
+    	List<ChampParametre<Quartier>> champs = List.of(
+    	        ChampParametre.<Quartier>texteImmuable("code", Quartier::getCode, Quartier::setCode),
+    	        ChampParametre.<Quartier>texte("libelle", Quartier::getLibelle, Quartier::setLibelle),
+    	        ChampParametre.<Quartier>texteOptionnel("localites",
+    	                Quartier::getLocalites, Quartier::setLocalites),
+    	        ChampParametre.<Quartier>decimalPositif("prixBaseTerrainM2",
+    	                Quartier::getPrixBaseTerrainM2, Quartier::setPrixBaseTerrainM2),
+    	        ChampParametre.<Quartier>decimalPositif("coefficientZone",
+    	                Quartier::getCoefficientZone, Quartier::setCoefficientZone),
+    	        ChampParametre.<Quartier>decimalPositifOptionnel("tauxCapitalisation",
+    	                Quartier::getTauxCapitalisation, Quartier::setTauxCapitalisation),
+    	        ChampParametre.<Quartier>booleen("prixBaseProvisoire",
+    	                Quartier::isPrixBaseProvisoire, Quartier::setPrixBaseProvisoire),
+    	        ChampParametre.<Quartier>activation("actif", Quartier::isActif, Quartier::setActif));
         return new DefinitionParametre<Quartier>("quartiers", "Quartier", repository, Quartier::getCode, champs,
                 v -> new Quartier(v.texte("code"), v.texte("libelle"), v.decimal("prixBaseTerrainM2")));
     }
@@ -150,7 +153,9 @@ public class DefinitionsParametresConfig {
                 ChampParametre.<ParametreGlobal>texteOptionnel("unite",
                         ParametreGlobal::getUnite, ParametreGlobal::setUnite),
                 ChampParametre.<ParametreGlobal>texteOptionnel("description",
-                        ParametreGlobal::getDescription, ParametreGlobal::setDescription));
+                        ParametreGlobal::getDescription, ParametreGlobal::setDescription),
+        		ChampParametre.<ParametreGlobal, NiveauParametre>enumerationOptionnelle("niveau",
+        				NiveauParametre.class, ParametreGlobal::getNiveau, ParametreGlobal::setNiveau));
         return new DefinitionParametre<ParametreGlobal>("parametres-globaux", "ParametreGlobal", repository,
                 ParametreGlobal::getCle, champs,
                 v -> new ParametreGlobal(v.texte("cle"), v.decimal("valeur"),

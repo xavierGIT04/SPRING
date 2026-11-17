@@ -20,3 +20,5 @@ nassara:
     duree-cache-minutes: 5
   cors:
     origines: http://localhost:4200
+  parametres:
+    initialiser-courants: true

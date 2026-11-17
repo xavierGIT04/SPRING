@@ -29,6 +29,10 @@ public class Quartier extends EntiteReference {
 
     @Column(nullable = false)
     private int nombreTransactionsCalibrage = 0;
+    
+    /** Localités rattachées à ce quartier, séparées par « ; » (ex. « Wognomé;Avénou »). */
+    @Column(length = 500)
+    private String localites;
 
     protected Quartier() {
     }
@@ -48,4 +52,7 @@ public class Quartier extends EntiteReference {
     public void setPrixBaseProvisoire(boolean prixBaseProvisoire) { this.prixBaseProvisoire = prixBaseProvisoire; }
     public int getNombreTransactionsCalibrage() { return nombreTransactionsCalibrage; }
     public void setNombreTransactionsCalibrage(int nombreTransactionsCalibrage) { this.nombreTransactionsCalibrage = nombreTransactionsCalibrage; }
+    
+    public String getLocalites() { return localites; }
+    public void setLocalites(String localites) { this.localites = localites; }
 }
