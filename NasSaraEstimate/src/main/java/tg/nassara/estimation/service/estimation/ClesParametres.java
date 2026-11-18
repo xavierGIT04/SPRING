@@ -109,4 +109,22 @@ public final class ClesParametres {
 
     /** Facteur (0 à 1) appliqué à la confiance quand une seule méthode conclut (aucun recoupement). */
     public static final String FUSION_CONFIANCE_FACTEUR_METHODE_UNIQUE = "FUSION_CONFIANCE_FACTEUR_METHODE_UNIQUE";
+    
+    // --- Apprentissage continu (recalibrage du coefficient de zone) ---
+    /** Poids de l'écart constaté dans la correction (0 exclu à 1) : 0,20 = on corrige de 20 % de l'écart. */
+    public static final String APPRENTISSAGE_LISSAGE = "APPRENTISSAGE_LISSAGE";
+
+    /** Nombre minimal de transactions exploitables d'un quartier pour modifier son coefficient de zone. */
+    public static final String APPRENTISSAGE_MIN_TRANSACTIONS_QUARTIER = "APPRENTISSAGE_MIN_TRANSACTIONS_QUARTIER";
+
+    /** Variation maximale du coefficient de zone par recalibrage (fraction, 0 exclu à 1 exclu). */
+    public static final String APPRENTISSAGE_VARIATION_MAX_CYCLE = "APPRENTISSAGE_VARIATION_MAX_CYCLE";
+
+    /** Bornes absolues du coefficient de zone. */
+    public static final String APPRENTISSAGE_COEFFICIENT_ZONE_MIN = "APPRENTISSAGE_COEFFICIENT_ZONE_MIN";
+    public static final String APPRENTISSAGE_COEFFICIENT_ZONE_MAX = "APPRENTISSAGE_COEFFICIENT_ZONE_MAX";
+    
+    /** Bornes absolues du taux de capitalisation d'un quartier après recalibrage (fractions, ex. 0,03 = 3 %). */
+    public static final String APPRENTISSAGE_TAUX_CAPITALISATION_MIN = "APPRENTISSAGE_TAUX_CAPITALISATION_MIN";
+    public static final String APPRENTISSAGE_TAUX_CAPITALISATION_MAX = "APPRENTISSAGE_TAUX_CAPITALISATION_MAX";
 }

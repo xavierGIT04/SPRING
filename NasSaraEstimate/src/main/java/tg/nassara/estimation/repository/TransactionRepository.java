@@ -1,5 +1,7 @@
 package tg.nassara.estimation.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +23,11 @@ public interface TransactionRepository extends JpaRepository<TransactionImmobili
             """)
     List<TransactionImmobiliere> findHistoriqueParQuartier(@Param("quartierId") Long quartierId,
                                                            @Param("statut") StatutTransaction statut);
+
+    Page<TransactionImmobiliere> findAllByOrderByDateTransactionDesc(Pageable pageable);
+
+    Page<TransactionImmobiliere> findByStatutOrderByDateTransactionDesc(StatutTransaction statut, Pageable pageable);
+
+    /** Détection de doublon : une autre transaction non annulée existe-t-elle pour ce bien ? */
+    boolean existsByBienIdAndStatutNot(Long bienId, StatutTransaction statut);
 }

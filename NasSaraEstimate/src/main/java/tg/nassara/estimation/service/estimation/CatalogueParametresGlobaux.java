@@ -91,6 +91,20 @@ public final class CatalogueParametresGlobaux {
             new Entree(ClesParametres.FUSION_ECART_ALERTE_METHODES, "0.30", "fraction", AVANCE,
                     "Avancé. Écart entre les prix des méthodes au-delà duquel un avertissement est affiché. Ex. : 0,30 = 30 %."),
             new Entree(ClesParametres.FUSION_CONFIANCE_FACTEUR_METHODE_UNIQUE, "0.80", "facteur", AVANCE,
-                    "Avancé. Réduction de confiance quand une seule méthode a pu conclure (aucun recoupement).")
+                    "Avancé. Réduction de confiance quand une seule méthode a pu conclure (aucun recoupement)."),
+            new Entree(ClesParametres.APPRENTISSAGE_LISSAGE, "0.20", "fraction", AVANCE,
+                    "Avancé. Part de l'écart constaté (prix de vente réel contre estimation) corrigée à chaque recalibrage du coefficient de zone. Ex. : 0,20 = 20 % de l'écart. 1 = tout l'écart."),
+            new Entree(ClesParametres.APPRENTISSAGE_MIN_TRANSACTIONS_QUARTIER, "3", "nombre", AVANCE,
+                    "Avancé. Nombre minimal de ventes validées d'un quartier pour modifier son coefficient de zone. En dessous, elles sont conservées pour un prochain recalibrage."),
+            new Entree(ClesParametres.APPRENTISSAGE_VARIATION_MAX_CYCLE, "0.10", "fraction", AVANCE,
+                    "Avancé. Variation maximale du coefficient de zone d'un quartier à chaque recalibrage. Ex. : 0,10 = au plus 10 % de hausse ou de baisse."),
+            new Entree(ClesParametres.APPRENTISSAGE_COEFFICIENT_ZONE_MIN, "0.50", "facteur", AVANCE,
+                    "Avancé. Valeur plancher du coefficient de zone d'un quartier après recalibrage."),
+            new Entree(ClesParametres.APPRENTISSAGE_COEFFICIENT_ZONE_MAX, "2.00", "facteur", AVANCE,
+                    "Avancé. Valeur plafond du coefficient de zone d'un quartier après recalibrage."),
+            new Entree(ClesParametres.APPRENTISSAGE_TAUX_CAPITALISATION_MIN, "0.03", "fraction", AVANCE,
+                    "Avancé. Taux de capitalisation plancher d'un quartier après recalibrage. Ex. : 0,03 = 3 %."),
+            new Entree(ClesParametres.APPRENTISSAGE_TAUX_CAPITALISATION_MAX, "0.20", "fraction", AVANCE,
+                    "Avancé. Taux de capitalisation plafond d'un quartier après recalibrage. Ex. : 0,20 = 20 %.")
     );
 }
