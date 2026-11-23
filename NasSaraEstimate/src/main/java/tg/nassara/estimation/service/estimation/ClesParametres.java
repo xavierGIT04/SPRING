@@ -127,4 +127,11 @@ public final class ClesParametres {
     /** Bornes absolues du taux de capitalisation d'un quartier après recalibrage (fractions, ex. 0,03 = 3 %). */
     public static final String APPRENTISSAGE_TAUX_CAPITALISATION_MIN = "APPRENTISSAGE_TAUX_CAPITALISATION_MIN";
     public static final String APPRENTISSAGE_TAUX_CAPITALISATION_MAX = "APPRENTISSAGE_TAUX_CAPITALISATION_MAX";
+    
+    /** Nombre minimal de ventes exploitables d'un standing pour modifier son coût de construction. */
+    public static final String APPRENTISSAGE_MIN_TRANSACTIONS_STANDING = "APPRENTISSAGE_MIN_TRANSACTIONS_STANDING";
+
+    /** Bornes absolues du coût de construction d'un standing après recalibrage (XOF par m² bâti). */
+    public static final String APPRENTISSAGE_COUT_CONSTRUCTION_MIN = "APPRENTISSAGE_COUT_CONSTRUCTION_MIN";
+    public static final String APPRENTISSAGE_COUT_CONSTRUCTION_MAX = "APPRENTISSAGE_COUT_CONSTRUCTION_MAX";
 }

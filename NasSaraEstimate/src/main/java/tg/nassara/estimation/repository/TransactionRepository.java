@@ -12,8 +12,11 @@ import java.util.List;
 
 public interface TransactionRepository extends JpaRepository<TransactionImmobiliere, Long> {
 
-    /** Transactions validées pas encore consommées par le recalibrage. */
+    /** Transactions validées pas encore consommées par le recalibrage du coefficient de zone et du taux. */
     List<TransactionImmobiliere> findByStatutAndIntegreApprentissageFalse(StatutTransaction statut);
+
+    /** Transactions validées pas encore consommées par le recalibrage du coût de construction (étape 9c-coût). */
+    List<TransactionImmobiliere> findByStatutAndIntegreCoutFalse(StatutTransaction statut);
 
     /** Historique d'un quartier (comparaison de marché, correction des biais). */
     @Query("""

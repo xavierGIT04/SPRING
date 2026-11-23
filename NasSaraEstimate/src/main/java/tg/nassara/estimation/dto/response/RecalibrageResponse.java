@@ -7,15 +7,24 @@ import java.util.List;
 /**
  * Bilan d'un recalibrage. En simulation, rien n'est écrit : le bilan montre ce qui serait fait.
  * « limite » : null, ou la raison pour laquelle la valeur a été bornée (VARIATION_MAX, BORNE_MIN, BORNE_MAX).
+ *
+ * @param transactionsIntegrees               transactions consommées par le coefficient de zone et le taux
+ * @param transactionsCoutIntegrees           transactions consommées par le coût de construction
+ * @param transactionsCoutEnAttenteCalibrage  ventes de bâtis dont le quartier n'est pas encore assez calibré
+ *                                            pour apprendre le coût de construction
  */
 public record RecalibrageResponse(
         boolean simulation,
         Instant date,
         int transactionsExaminees,
         int transactionsIntegrees,
+        int transactionsCoutIntegrees,
+        int transactionsCoutEnAttenteCalibrage,
         List<QuartierRecalibre> quartiers,
         List<QuartierRendement> rendements,
+        List<StandingRecalibre> standings,
         List<QuartierEnAttente> quartiersEnAttente,
+        List<StandingEnAttente> standingsEnAttente,
         List<TransactionEcartee> transactionsEcartees) {
 
     public record QuartierRecalibre(Long quartierId, String code, String libelle,
@@ -29,7 +38,18 @@ public record RecalibrageResponse(
                                     BigDecimal tauxObserveMedian, int transactionsUtilisees, String limite) {
     }
 
+    /** Coûts en XOF par m² bâti ; « ratioMedian » = coût observé ÷ coût actuel du standing. */
+    public record StandingRecalibre(Long standingId, String code, String libelle,
+                                    BigDecimal ancienCout, BigDecimal nouveauCout,
+                                    BigDecimal coutObserveMedian, BigDecimal ratioMedian,
+                                    int transactionsUtilisees, String limite) {
+    }
+
     public record QuartierEnAttente(Long quartierId, String code, String libelle,
+                                    int transactionsDisponibles, int minimumRequis) {
+    }
+
+    public record StandingEnAttente(Long standingId, String code, String libelle,
                                     int transactionsDisponibles, int minimumRequis) {
     }
 

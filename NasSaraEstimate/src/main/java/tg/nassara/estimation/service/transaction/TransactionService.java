@@ -138,7 +138,8 @@ public class TransactionService {
         if (transaction.getStatut() == StatutTransaction.ANNULEE) {
             throw new ConflitException("La transaction est déjà annulée.");
         }
-        if (transaction.getStatut() == StatutTransaction.VALIDEE && transaction.isIntegreApprentissage()) {
+        if (transaction.getStatut() == StatutTransaction.VALIDEE
+                && (transaction.isIntegreApprentissage() || transaction.isIntegreCout())) {
             throw new ConflitException(
                     "Cette transaction a déjà servi au recalibrage : elle ne peut plus être annulée.");
         }

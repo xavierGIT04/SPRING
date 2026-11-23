@@ -23,6 +23,10 @@ public class Standing extends EntiteReference {
     @Column(nullable = false, precision = 6, scale = 4)
     private BigDecimal plafondVetuste;
 
+    /** Nombre de ventes de biens bâtis qui ont servi à recalibrer le coût de construction (étape 9c-coût). */
+    @Column(nullable = false)
+    private int nombreTransactionsCalibrage = 0;
+
     protected Standing() {
     }
 
@@ -40,4 +44,6 @@ public class Standing extends EntiteReference {
     public void setTauxVetusteAnnuel(BigDecimal tauxVetusteAnnuel) { this.tauxVetusteAnnuel = tauxVetusteAnnuel; }
     public BigDecimal getPlafondVetuste() { return plafondVetuste; }
     public void setPlafondVetuste(BigDecimal plafondVetuste) { this.plafondVetuste = plafondVetuste; }
+    public int getNombreTransactionsCalibrage() { return nombreTransactionsCalibrage; }
+    public void setNombreTransactionsCalibrage(int nombreTransactionsCalibrage) { this.nombreTransactionsCalibrage = nombreTransactionsCalibrage; }
 }

@@ -105,6 +105,12 @@ public final class CatalogueParametresGlobaux {
             new Entree(ClesParametres.APPRENTISSAGE_TAUX_CAPITALISATION_MIN, "0.03", "fraction", AVANCE,
                     "Avancé. Taux de capitalisation plancher d'un quartier après recalibrage. Ex. : 0,03 = 3 %."),
             new Entree(ClesParametres.APPRENTISSAGE_TAUX_CAPITALISATION_MAX, "0.20", "fraction", AVANCE,
-                    "Avancé. Taux de capitalisation plafond d'un quartier après recalibrage. Ex. : 0,20 = 20 %.")
+                    "Avancé. Taux de capitalisation plafond d'un quartier après recalibrage. Ex. : 0,20 = 20 %."),
+            new Entree(ClesParametres.APPRENTISSAGE_MIN_TRANSACTIONS_STANDING, "5", "nombre", AVANCE,
+                    "Avancé. Nombre minimal de ventes de biens bâtis d'un standing pour modifier son coût de construction. Seules comptent les ventes de quartiers déjà bien calibrés."),
+            new Entree(ClesParametres.APPRENTISSAGE_COUT_CONSTRUCTION_MIN, "80000", "XOF/m²", AVANCE,
+                    "Avancé. Coût de construction plancher d'un standing après recalibrage (XOF par m² bâti)."),
+            new Entree(ClesParametres.APPRENTISSAGE_COUT_CONSTRUCTION_MAX, "1500000", "XOF/m²", AVANCE,
+                    "Avancé. Coût de construction plafond d'un standing après recalibrage (XOF par m² bâti).")
     );
 }

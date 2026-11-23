@@ -47,11 +47,17 @@ public class TransactionImmobiliere extends EntiteBase {
 
     private Instant dateValidation;
 
-    /** Vrai une fois la transaction consommée par le recalibrage (évite le double comptage). */
+    /** Vrai une fois la transaction consommée par le recalibrage du coefficient de zone et du taux (évite le double comptage). */
     @Column(nullable = false)
     private boolean integreApprentissage = false;
 
     private Instant dateIntegrationApprentissage;
+
+    /** Vrai une fois la transaction consommée par le recalibrage du coût de construction (drapeau distinct). */
+    @Column(nullable = false)
+    private boolean integreCout = false;
+
+    private Instant dateIntegrationCout;
 
     public Bien getBien() { return bien; }
     public void setBien(Bien bien) { this.bien = bien; }
@@ -73,4 +79,8 @@ public class TransactionImmobiliere extends EntiteBase {
     public void setIntegreApprentissage(boolean integreApprentissage) { this.integreApprentissage = integreApprentissage; }
     public Instant getDateIntegrationApprentissage() { return dateIntegrationApprentissage; }
     public void setDateIntegrationApprentissage(Instant dateIntegrationApprentissage) { this.dateIntegrationApprentissage = dateIntegrationApprentissage; }
+    public boolean isIntegreCout() { return integreCout; }
+    public void setIntegreCout(boolean integreCout) { this.integreCout = integreCout; }
+    public Instant getDateIntegrationCout() { return dateIntegrationCout; }
+    public void setDateIntegrationCout(Instant dateIntegrationCout) { this.dateIntegrationCout = dateIntegrationCout; }
 }

@@ -173,6 +173,13 @@ class TransactionServiceTest {
         assertThatThrownBy(() -> service.annuler(6L)).isInstanceOf(ConflitException.class);
     }
 
+    @Test
+    void annuler_valideeIntegreeAuCout_estRefusee() {
+        TransactionImmobiliere consommee = transaction(StatutTransaction.VALIDEE);
+        consommee.setIntegreCout(true);
+        when(transactionRepository.findById(7L)).thenReturn(Optional.of(consommee));
+        assertThatThrownBy(() -> service.annuler(7L)).isInstanceOf(ConflitException.class);
+    }
     // ---------- Fabriques ----------
 
     private TransactionImmobiliere transaction(StatutTransaction statut) {

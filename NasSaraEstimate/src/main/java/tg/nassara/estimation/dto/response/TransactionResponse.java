@@ -14,6 +14,8 @@ import java.time.LocalDate;
 
 /**
  * « ecartRelatif » = (prix réel − prix central estimé) ÷ prix central estimé : nul sans estimation préalable.
+ * « integreApprentissage » : consommée par le coefficient de zone et le taux ; « integreCout » : par le coût de
+ * construction. Une transaction consommée par l'un ou l'autre n'est plus annulable.
  * À construire dans une transaction ouverte (bien et estimation chargés à la demande).
  */
 public record TransactionResponse(
@@ -31,7 +33,8 @@ public record TransactionResponse(
         StatutTransaction statut,
         String validePar,
         Instant dateValidation,
-        boolean integreApprentissage) {
+        boolean integreApprentissage,
+        boolean integreCout) {
 
     public static TransactionResponse depuis(TransactionImmobiliere t) {
         Bien bien = (Bien) Hibernate.unproxy(t.getBien());
@@ -44,6 +47,7 @@ public record TransactionResponse(
                 ReferenceResume.de(bien.getQuartier()),
                 estimation == null ? null : estimation.getId(), central,
                 t.getPrixVenteEffectif(), ecart, t.getLoyerMensuelConstate(), t.getDateTransaction(),
-                t.getStatut(), t.getValidePar(), t.getDateValidation(), t.isIntegreApprentissage());
+                t.getStatut(), t.getValidePar(), t.getDateValidation(),
+                t.isIntegreApprentissage(), t.isIntegreCout());
     }
 }
